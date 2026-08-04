@@ -1,40 +1,82 @@
 import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import ServicesSection from "./ServicesSection";
-import AboutSection from "./AboutSection";
+import MenuSection from "./MenuSection";
+import ReviewsSection from "./ReviewsSection";
+import LocationSection from "./LocationSection";
 import ContactSection from "./ContactSection";
 import Footer from "./Footer";
+import GallerySection from "./GallerySection";
 
 import { WebsiteContent } from "@/features/generation";
 
 export default function WebsitePreview({
-  website,
+    website,
 }: {
-  website: WebsiteContent;
+    website: WebsiteContent;
 }) {
-  return (
-    <div className="min-h-screen bg-white">
 
-      <Navbar businessName={website.title} />
+    return (
+        <div className="min-h-screen">
 
-      <HeroSection
-        title={website.title}
-        headline={website.headline}
-        description={website.description}
-      />
+            <Navbar businessName={website.title} />
 
-      <ServicesSection
-        description={website.description}
-      />
+            <HeroSection
+                title={website.title}
+                headline={website.headline}
+                description={website.description}
+            />
 
-      <AboutSection />
 
-      <ContactSection />
+            {website.sections.map((section, index) => {
 
-      <Footer
-        businessName={website.title}
-      />
+                switch (section.type) {
 
-    </div>
-  );
+                    case "menu":
+                        return (
+                            <MenuSection key={index} />
+                        );
+
+                    case "gallery":
+                        return (
+                            <GallerySection key={index} />
+                        );
+
+                    case "services":
+                        return (
+                            <ServicesSection
+                                key={index}
+                                description={section.content}
+                            />
+                        );
+
+                    case "reviews":
+                        return (
+                            <ReviewsSection key={index} />
+                        );
+
+                    case "location":
+                        return (
+                            <LocationSection
+                                key={index}
+                                address={section.content}
+                            />
+                        );
+
+                    case "contact":
+                        return (
+                            <ContactSection key={index} />
+                        );
+
+                    default:
+                        return null;
+                }
+
+            })}
+
+
+            <Footer businessName={website.title} />
+
+        </div>
+    );
 }

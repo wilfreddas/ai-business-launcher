@@ -16,5 +16,8 @@ export type WebsiteSectionType =
   | "hero"
   | "services"
   | "menu"
+  | "reviews"
+  | "location"
+  | "contact"
   | "about"
-  | "contact";
+  | "gallery";
