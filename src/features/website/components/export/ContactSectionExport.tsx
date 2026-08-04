@@ -1,6 +1,7 @@
 import { Phone, Mail, MapPin } from "lucide-react";
 import { BusinessInfo } from "@/features/generation/types";
 import { headingStyle, sectionHeadingClass, primaryButtonClass } from "../../theme";
+import { formatPhoneDisplay, phoneHref } from "@/lib/format";
 
 interface Props {
   businessInfo: BusinessInfo;
@@ -28,9 +29,9 @@ export default function ContactSectionExport({ businessInfo }: Props) {
 
             <div className="space-y-3 text-sm">
               {businessInfo.phone && (
-                <a href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-2.5 font-medium hover:text-[var(--w-primary)]">
+                <a href={`tel:${phoneHref(businessInfo.phone)}`} className="flex items-center gap-2.5 font-medium hover:text-[var(--w-primary)]">
                   <Phone className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {businessInfo.phone}
+                  {formatPhoneDisplay(businessInfo.phone)}
                 </a>
               )}
               {businessInfo.email && (

@@ -3,6 +3,7 @@
 import { Phone } from "lucide-react";
 import type { BusinessInfo } from "@/features/generation/types";
 import { primaryButtonClass, outlineButtonClass } from "../theme";
+import { phoneHref } from "@/lib/format";
 
 interface Props {
   businessInfo: BusinessInfo;
@@ -21,7 +22,7 @@ export default function CTAButton({ businessInfo, variant = "primary", className
 
   if (businessInfo.ctaType === "call" && businessInfo.phone) {
     return (
-      <a href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`} className={classes}>
+      <a href={`tel:${phoneHref(businessInfo.phone)}`} className={classes}>
         <Phone className="h-4 w-4" />
         {businessInfo.cta}
       </a>

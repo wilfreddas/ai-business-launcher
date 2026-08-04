@@ -4,6 +4,7 @@ import { Phone } from "lucide-react";
 import { HeroContent, BusinessInfo } from "@/features/generation/types";
 import { headingStyle, outlineButtonClass } from "../theme";
 import { stockPhotoUrl } from "../stockPhoto";
+import { formatPhoneDisplay, phoneHref } from "@/lib/format";
 import CTAButton from "./CTAButton";
 
 interface Props {
@@ -62,11 +63,11 @@ export default function HeroSection({ hero, businessInfo }: Props) {
 
           {businessInfo.phone && businessInfo.ctaType !== "call" && (
             <a
-              href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`}
+              href={`tel:${phoneHref(businessInfo.phone)}`}
               className={`w-full sm:w-auto ${outlineButtonClass}`}
             >
               <Phone className="h-4 w-4" />
-              {businessInfo.phone}
+              {formatPhoneDisplay(businessInfo.phone)}
             </a>
           )}
         </div>

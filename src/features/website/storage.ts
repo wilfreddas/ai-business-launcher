@@ -1,18 +1,20 @@
 // src/features/website/storage.ts
 //
-// Lightweight browser-local persistence for generated sites. There's no
-// backend/database in this project yet, so a saved site's live link
-// (/site/[slug]) works reliably on the computer/browser that created it.
-// Sharing that link on another device won't resolve until real server-side
-// storage is added — the "Download Website" export exists specifically to
-// give people a way to get a truly portable copy in the meantime.
+// Server-only persistence for generated sites. If KV_REST_API_URL /
+// KV_REST_API_TOKEN are set (added automatically when you connect "Upstash
+// for Redis" via the Vercel Marketplace to this project), sites are stored
+// in Redis and are reachable from any device. Without those env vars, this
+// falls back to an in-process memory store -- fine for local dev, but it
+// resets on every server restart and isn't shared across serverless
+// instances, so it's not a substitute for Redis in production.
+//
+// This file must only ever be imported from server code (Server Actions,
+// Server Components, Route Handlers) -- never from a "use client" component.
 
-"use client";
-
+import "server-only";
+import { Redis } from "@upstash/redis";
 import type { Business } from "@/features/businesses/types";
 import type { WebsiteContent } from "@/features/generation/types";
-
-const STORAGE_KEY = "ai-business-launcher:sites";
 
 export interface SavedSite {
   slug: string;
@@ -21,36 +23,31 @@ export interface SavedSite {
   createdAt: string;
 }
 
-function readAll(): SavedSite[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.error("Failed to read saved sites:", error);
-    return [];
-  }
-}
+const INDEX_KEY = "sites:index";
 
-function writeAll(sites: SavedSite[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sites));
+// In-memory fallback, used only when Redis isn't configured.
+const memorySites = new Map<string, SavedSite>();
+
+function getRedis(): Redis | null {
+  const url = process.env.KV_REST_API_URL;
+  const token = process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
 }
 
 function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "website";
+  return (
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "website"
+  );
 }
 
-function uniqueSlug(base: string, existing: SavedSite[]): string {
+function uniqueSlug(base: string, taken: Set<string>): string {
   let slug = base;
   let suffix = 2;
-  const taken = new Set(existing.map((s) => s.slug));
   while (taken.has(slug)) {
     slug = `${base}-${suffix}`;
     suffix += 1;
@@ -58,11 +55,17 @@ function uniqueSlug(base: string, existing: SavedSite[]): string {
   return slug;
 }
 
-/** Save a generated website, returning the slug it was saved under. */
-export function saveSite(business: Partial<Business>, website: WebsiteContent): SavedSite {
-  const sites = readAll();
-  const slug = uniqueSlug(slugify(business.name || "website"), sites);
+export async function saveSite(
+  business: Partial<Business>,
+  website: WebsiteContent
+): Promise<SavedSite> {
+  const redis = getRedis();
 
+  const taken = redis
+    ? new Set(await redis.smembers(INDEX_KEY))
+    : new Set(memorySites.keys());
+
+  const slug = uniqueSlug(slugify(business.name || "website"), taken);
   const site: SavedSite = {
     slug,
     business,
@@ -70,20 +73,56 @@ export function saveSite(business: Partial<Business>, website: WebsiteContent): 
     createdAt: new Date().toISOString(),
   };
 
-  writeAll([site, ...sites]);
+  if (redis) {
+    await redis.set(`site:${slug}`, site);
+    await redis.sadd(INDEX_KEY, slug);
+  } else {
+    memorySites.set(slug, site);
+  }
+
   return site;
 }
 
-export function listSites(): SavedSite[] {
-  return readAll().sort(
+export async function getSite(slug: string): Promise<SavedSite | null> {
+  const redis = getRedis();
+  if (redis) {
+    const site = await redis.get<SavedSite>(`site:${slug}`);
+    return site ?? null;
+  }
+  return memorySites.get(slug) ?? null;
+}
+
+export async function listSites(): Promise<SavedSite[]> {
+  const redis = getRedis();
+  let sites: SavedSite[];
+
+  if (redis) {
+    const slugs = await redis.smembers(INDEX_KEY);
+    if (slugs.length === 0) return [];
+    const results = await Promise.all(
+      slugs.map((slug) => redis.get<SavedSite>(`site:${slug}`))
+    );
+    sites = results.filter((s): s is SavedSite => Boolean(s));
+  } else {
+    sites = Array.from(memorySites.values());
+  }
+
+  return sites.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }
 
-export function getSite(slug: string): SavedSite | null {
-  return readAll().find((s) => s.slug === slug) ?? null;
+export async function deleteSite(slug: string): Promise<void> {
+  const redis = getRedis();
+  if (redis) {
+    await redis.del(`site:${slug}`);
+    await redis.srem(INDEX_KEY, slug);
+  } else {
+    memorySites.delete(slug);
+  }
 }
 
-export function deleteSite(slug: string): void {
-  writeAll(readAll().filter((s) => s.slug !== slug));
+/** Whether persistent (cross-device) storage is actually configured. */
+export function isPersistentStorageConfigured(): boolean {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }

@@ -126,6 +126,11 @@ function getFallbackResponse(prompt: string): string {
     });
   }
 
+  if (lower.includes("business hours") && lower.includes("reformat")) {
+    const match = prompt.match(/Raw input: "([^"]*)"/);
+    return JSON.stringify({ hours: match?.[1] ?? "" });
+  }
+
   if (lower.includes("about") && lower.includes("section")) {
     return JSON.stringify({
       heading: "Who We Are",

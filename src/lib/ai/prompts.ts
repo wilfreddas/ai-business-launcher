@@ -27,7 +27,7 @@ Industry context (use as inspiration, not a rulebook — deviate if this specifi
 - Typical primary call-to-action: ${profile.defaultCtaType}
 
 Make real design decisions:
-1. Choose 4-7 sections, in the order they should appear on the page, from this exact vocabulary only: hero, menu, services, gallery, about, reviews, location, contact. "menu" is ONLY for food businesses. Always start with "hero" and end with "contact".
+1. Choose 4-6 sections, in the order they should appear on the page, from this exact vocabulary only: hero, menu, services, about, reviews, location, contact. "menu" is ONLY for food businesses. Always start with "hero" and end with "contact".
 2. Pick a full color palette as hex codes: a primaryColor (main brand color, used for buttons/accents), a secondaryColor (supporting color, often a light neutral or tint), an accentColor (a pop color for highlights/badges, can equal primary if that's the best choice), a backgroundColor (page background, usually white or a very light tint — must have strong contrast with textColor), and a textColor (body text color, near-black or near-white depending on backgroundColor). All hex codes must be valid 6-digit hex like "#1F3A2E". Ensure primaryColor has enough contrast against white text to be used on solid buttons.
 3. Pick headingFont: one of "serif" (elegant/traditional), "display" (bold/industrial/condensed), "friendly" (rounded/approachable), or "sans" (clean/modern/minimal) — pick whichever actually fits this business.
 4. Pick bodyFont: "serif" or "sans" — usually "sans" for readability unless the brand is distinctly editorial/literary.
@@ -178,6 +178,27 @@ Return ONLY this JSON structure. No markdown. No explanation:
 }
 
 Make everything professional and specific to the business type. Do not invent contact details — none are requested here.`;
+}
+
+/**
+ * Reformat whatever the owner typed for business hours into a clean,
+ * standard, readable format. This must NOT change or invent days/times —
+ * only reformat the ones actually given.
+ */
+export function hoursFormatPrompt(rawHours: string): string {
+  return `Reformat this business hours text into a clean, standard, human-readable format.
+
+Raw input: "${rawHours}"
+
+Rules:
+- Do NOT change, add, or remove any days or times — only reformat what's given.
+- Abbreviate day names (Mon, Tue, Wed, Thu, Fri, Sat, Sun) and use en-dash ranges like "Mon-Fri".
+- Format times as e.g. "9:00 AM - 5:00 PM". Assume typical business hours when a bare number is ambiguous (e.g. "9 to 5" means 9:00 AM - 5:00 PM).
+- If multiple day groups have different hours, separate them with a comma.
+- If the input is empty, unclear, or already well formatted, return it unchanged.
+
+Return ONLY this JSON. No markdown, no explanation:
+{ "hours": "the cleanly formatted hours string" }`;
 }
 
 /**
