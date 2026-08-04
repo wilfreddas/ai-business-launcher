@@ -1,44 +1,60 @@
 import { Business } from "../businesses/types";
-import { WebsiteContent } from "./types";
 
-import { askAI } from "@/lib/ai/client";
-import { websitePrompt } from "@/lib/ai/prompts";
+import {
+ WebsiteContent,
+} from "./types";
+
+import {
+ buildWebsiteBlueprint,
+} from "./blueprint";
+
 
 export async function generateWebsite(
-  business: Partial<Business>
+ business: Partial<Business>
 ): Promise<WebsiteContent> {
-  const prompt = websitePrompt(
-    business.name ?? "Business",
-    business.description ?? ""
-  );
 
-  const aiResponse = await askAI({
-    prompt,
-  });
 
-  console.log("AI Response:", aiResponse);
+const blueprint =
+ await buildWebsiteBlueprint(
+   business
+ );
 
-  return {
-    title: business.name ?? "My Business",
 
-    headline: "Your professional website",
+return {
 
-    description:
-      business.description ??
-      "Professional services you can trust.",
+ title:
+  business.name ??
+  "My Business",
 
-    sections: [
-      {
-        type: "hero",
-        heading: "Welcome",
-        content: aiResponse.content,
-      },
-      {
-        type: "contact",
-        heading: "Contact Us",
-        content:
-          business.address ?? "",
-      },
-    ],
-  };
+
+ headline:
+  "Welcome to our website",
+
+
+ description:
+  business.description ?? "",
+
+
+ sections:
+ blueprint.sections.map(
+ section => ({
+
+  type: section,
+
+  heading:
+   section
+    .charAt(0)
+    .toUpperCase()
+    +
+   section.slice(1),
+
+  content:
+   business.description ?? "",
+
+ })
+ )
+
+};
+
+
 }
