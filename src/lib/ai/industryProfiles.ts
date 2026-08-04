@@ -33,7 +33,7 @@ export const INDUSTRY_PROFILES: Record<BusinessType, IndustryProfile> = {
   restaurant: {
     label: "Restaurant / Food",
     template: "restaurant",
-    availableSections: ["hero", "menu", "gallery", "about", "reviews", "location", "contact"],
+    availableSections: ["hero", "menu", "about", "reviews", "location", "contact"],
     moodHints:
       "Appetite-driven, warm, sensory. Should feel like walking into the actual dining room.",
     colorHints:
@@ -45,9 +45,8 @@ export const INDUSTRY_PROFILES: Record<BusinessType, IndustryProfile> = {
   lawn_care: {
     label: "Lawn Care",
     template: "lawn_care",
-    availableSections: ["hero", "services", "gallery", "about", "reviews", "contact"],
-    moodHints:
-      "Outdoorsy, fresh, trustworthy, seasonal. Gallery should read as before/after transformation work.",
+    availableSections: ["hero", "services", "about", "reviews", "contact"],
+    moodHints: "Outdoorsy, fresh, trustworthy, seasonal.",
     colorHints:
       "Natural greens, earthy browns, sky blues. Should feel alive outdoors, not corporate.",
     fontHints: "Friendly, approachable heading font; clean readable body.",
@@ -56,7 +55,7 @@ export const INDUSTRY_PROFILES: Record<BusinessType, IndustryProfile> = {
   landscaping: {
     label: "Landscaping",
     template: "lawn_care",
-    availableSections: ["hero", "services", "gallery", "about", "reviews", "contact"],
+    availableSections: ["hero", "services", "about", "reviews", "contact"],
     moodHints: "Premium outdoor craftsmanship, design-forward, aspirational.",
     colorHints: "Deep greens, stone/earth neutrals, one confident accent color.",
     fontHints: "Can lean slightly upscale/serif for heading if premium positioning; friendly sans otherwise.",
@@ -93,7 +92,7 @@ export const INDUSTRY_PROFILES: Record<BusinessType, IndustryProfile> = {
   cleaning: {
     label: "Cleaning Services",
     template: "cleaning",
-    availableSections: ["hero", "services", "gallery", "about", "reviews", "contact"],
+    availableSections: ["hero", "services", "about", "reviews", "contact"],
     moodHints: "Fresh, spotless, trustworthy-in-your-home feeling.",
     colorHints: "Crisp whites, soft blues/teals or fresh greens. Should feel clean and light.",
     fontHints: "Friendly, rounded heading font; light and airy overall feel.",
@@ -102,7 +101,7 @@ export const INDUSTRY_PROFILES: Record<BusinessType, IndustryProfile> = {
   dentist: {
     label: "Dental Practice",
     template: "dental",
-    availableSections: ["hero", "about", "services", "gallery", "reviews", "location", "contact"],
+    availableSections: ["hero", "about", "services", "reviews", "location", "contact"],
     moodHints: "Calm, clinical-but-warm, trust and comfort focused (many visitors are anxious).",
     colorHints: "Soft blues, mint/teal, clean whites. Avoid anything alarming or overly bold.",
     fontHints: "Clean modern sans or a soft serif heading; very readable body.",
@@ -120,7 +119,7 @@ export const INDUSTRY_PROFILES: Record<BusinessType, IndustryProfile> = {
   other: {
     label: "General Service Business",
     template: "service",
-    availableSections: ["hero", "services", "about", "gallery", "reviews", "location", "contact"],
+    availableSections: ["hero", "services", "about", "reviews", "location", "contact"],
     moodHints: "Professional and adaptable to whatever this specific business actually does.",
     colorHints: "Choose a palette that fits the described business rather than a generic default.",
     fontHints: "Choose fonts that fit the tone described for this specific business.",

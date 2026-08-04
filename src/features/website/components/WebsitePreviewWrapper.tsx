@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 // never the real generation pipeline that pulls in the Anthropic SDK.
 import { generateWebsiteAction } from "@/features/generation/actions";
 import { Business } from "@/features/businesses/types";
-import { saveSite } from "../storage";
 
 export default function WebsitePreviewWrapper({
   business,
@@ -25,9 +24,8 @@ export default function WebsitePreviewWrapper({
 
     startTransition(async () => {
       try {
-        const result = await generateWebsiteAction(business);
-        const saved = saveSite(business, result);
-        router.push(`/site/${saved.slug}`);
+        const { slug } = await generateWebsiteAction(business);
+        router.push(`/site/${slug}`);
       } catch (err) {
         setError("Failed to generate website. Please try again.");
         console.error(err);

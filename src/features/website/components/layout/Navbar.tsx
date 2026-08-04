@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, X, Phone } from "lucide-react";
 import type { SectionName, BusinessInfo } from "@/features/generation/types";
 import { headingStyle, primaryButtonClass } from "../../theme";
+import { formatPhoneDisplay, phoneHref } from "@/lib/format";
 
 const SECTION_LABELS: Partial<Record<SectionName, string>> = {
   menu: "Menu",
@@ -46,9 +47,9 @@ export default function Navbar({ businessName, sections, businessInfo }: Props) 
 
         <div className="hidden md:block">
           {businessInfo.phone && (
-            <a href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`} className={primaryButtonClass}>
+            <a href={`tel:${phoneHref(businessInfo.phone)}`} className={primaryButtonClass}>
               <Phone className="h-4 w-4" />
-              {businessInfo.phone}
+              {formatPhoneDisplay(businessInfo.phone)}
             </a>
           )}
         </div>
@@ -82,12 +83,12 @@ export default function Navbar({ businessName, sections, businessInfo }: Props) 
           </div>
           {businessInfo.phone && (
             <a
-              href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`}
+              href={`tel:${phoneHref(businessInfo.phone)}`}
               onClick={() => setOpen(false)}
               className={`${primaryButtonClass} mt-3 w-full`}
             >
               <Phone className="h-4 w-4" />
-              {businessInfo.phone}
+              {formatPhoneDisplay(businessInfo.phone)}
             </a>
           )}
         </div>

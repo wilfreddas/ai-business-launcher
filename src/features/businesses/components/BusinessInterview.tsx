@@ -6,9 +6,7 @@ import useInterview from "../hooks/useInterview";
 import QuestionCard from "./QuestionCard";
 import ProgressBar from "./ProgressBar";
 
-import {
-  WebsitePreviewWrapper,
-} from "@/features/website";
+import WebsitePreviewWrapper from "@/features/website/components/WebsitePreviewWrapper";
 
 
 export default function BusinessInterview() {

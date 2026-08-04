@@ -1,6 +1,7 @@
 import { Phone, Menu } from "lucide-react";
 import type { SectionName, BusinessInfo } from "@/features/generation/types";
 import { headingStyle, primaryButtonClass } from "../../theme";
+import { formatPhoneDisplay, phoneHref } from "@/lib/format";
 
 const SECTION_LABELS: Partial<Record<SectionName, string>> = {
   menu: "Menu",
@@ -45,9 +46,9 @@ export default function NavbarExport({ businessName, sections, businessInfo }: P
 
         <div className="hidden md:block">
           {businessInfo.phone && (
-            <a href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`} className={primaryButtonClass}>
+            <a href={`tel:${phoneHref(businessInfo.phone)}`} className={primaryButtonClass}>
               <Phone className="h-4 w-4" />
-              {businessInfo.phone}
+              {formatPhoneDisplay(businessInfo.phone)}
             </a>
           )}
         </div>
@@ -65,9 +66,9 @@ export default function NavbarExport({ businessName, sections, businessInfo }: P
               ))}
             </div>
             {businessInfo.phone && (
-              <a href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`} className={`${primaryButtonClass} mt-3 w-full`}>
+              <a href={`tel:${phoneHref(businessInfo.phone)}`} className={`${primaryButtonClass} mt-3 w-full`}>
                 <Phone className="h-4 w-4" />
-                {businessInfo.phone}
+                {formatPhoneDisplay(businessInfo.phone)}
               </a>
             )}
           </div>

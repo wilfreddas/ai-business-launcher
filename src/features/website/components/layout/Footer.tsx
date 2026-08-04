@@ -3,6 +3,7 @@
 import { Phone, Mail, MapPin } from "lucide-react";
 import type { BusinessInfo } from "@/features/generation/types";
 import { headingStyle } from "../../theme";
+import { formatPhoneDisplay, phoneHref } from "@/lib/format";
 
 interface Props {
   businessName: string;
@@ -19,9 +20,9 @@ export default function Footer({ businessName, businessInfo }: Props) {
 
         <div className="flex flex-col items-center gap-2 text-[var(--w-text)]/70 sm:items-end">
           {businessInfo?.phone && (
-            <a href={`tel:${businessInfo.phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-2 hover:text-[var(--w-primary)]">
+            <a href={`tel:${phoneHref(businessInfo.phone)}`} className="flex items-center gap-2 hover:text-[var(--w-primary)]">
               <Phone className="h-3.5 w-3.5" />
-              {businessInfo.phone}
+              {formatPhoneDisplay(businessInfo.phone)}
             </a>
           )}
           {businessInfo?.email && (

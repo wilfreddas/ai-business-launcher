@@ -9,6 +9,7 @@ import {
   servicesPrompt,
   reviewsPrompt,
   businessInfoPrompt,
+  hoursFormatPrompt,
   aboutPrompt,
   galleryPrompt,
   seoPrompt,
@@ -131,9 +132,14 @@ export async function generateReviews(
     );
   } catch (error) {
     console.error("Reviews generation failed:", error);
+    const fallbackReviews = [
+      { text: "Excellent service! Very professional and timely.", author: "John D." },
+      { text: "Highly recommend. Great attention to detail.", author: "Sarah M." },
+      { text: "Outstanding work. Will definitely use again!", author: "Mike T." },
+      { text: "Friendly, reliable, and easy to work with.", author: "Priya K." },
+    ];
     return Array.from({ length: count }, (_, i) => ({
-      text: "Excellent service! Highly recommend.",
-      author: `Customer ${i + 1}`,
+      ...fallbackReviews[i % fallbackReviews.length],
       rating: 5,
     }));
   }
@@ -158,23 +164,27 @@ export async function generateBusinessInfo(
 ): Promise<BusinessInfo> {
   const profile = getIndustryProfile(business.type);
 
-  let copy: BusinessMarketingCopy;
-  try {
-    copy = await callClaudeJSON<BusinessMarketingCopy>(
-      businessInfoPrompt(business),
-      { system: CONTENT_GENERATION_SYSTEM }
-    );
-  } catch (error) {
-    console.error("Business info generation failed:", error);
-    copy = {
-      tagline: business.description || "Professional services",
-      description: business.description || "Welcome to our business",
-      cta: "Get Started",
-      ctaDescription: "Contact us today to learn more",
-      ctaType: profile.defaultCtaType,
-      emergencyAvailable: false,
-    };
-  }
+  const [copy, hours] = await Promise.all([
+    (async (): Promise<BusinessMarketingCopy> => {
+      try {
+        return await callClaudeJSON<BusinessMarketingCopy>(
+          businessInfoPrompt(business),
+          { system: CONTENT_GENERATION_SYSTEM }
+        );
+      } catch (error) {
+        console.error("Business info generation failed:", error);
+        return {
+          tagline: business.description || "Professional services",
+          description: business.description || "Welcome to our business",
+          cta: "Get Started",
+          ctaDescription: "Contact us today to learn more",
+          ctaType: profile.defaultCtaType,
+          emergencyAvailable: false,
+        };
+      }
+    })(),
+    formatBusinessHours(business.hours),
+  ]);
 
   return {
     businessName: business.name || "My Business",
@@ -188,8 +198,27 @@ export async function generateBusinessInfo(
     address: business.address || "",
     phone: business.phone || "",
     email: business.email || "",
-    hours: business.hours,
+    hours,
   };
+}
+
+/**
+ * Cleans up whatever the owner typed for hours (e.g. "Mon to Fri 9 to 5")
+ * into a standard readable format, without changing the actual days/times.
+ * Falls back to the raw text on any failure — never blank, never invented.
+ */
+async function formatBusinessHours(rawHours?: string): Promise<string | undefined> {
+  if (!rawHours || !rawHours.trim()) return undefined;
+  try {
+    const result = await callClaudeJSON<{ hours: string }>(
+      hoursFormatPrompt(rawHours),
+      { system: CONTENT_GENERATION_SYSTEM, maxTokens: 200 }
+    );
+    return result.hours?.trim() || rawHours;
+  } catch (error) {
+    console.error("Hours formatting failed:", error);
+    return rawHours;
+  }
 }
 
 /**
@@ -215,7 +244,11 @@ export async function generateAbout(
 }
 
 /**
- * Generate gallery captions
+ * Generate gallery captions. Not called by generateAllContent anymore --
+ * the gallery section showed random, industry-irrelevant stock photos and
+ * looked worse than not having one. Kept here (and GallerySection/the
+ * rendering path still work) in case real per-business photos become
+ * available later and this gets wired back in.
  */
 export async function generateGallery(
   business: Partial<Business>,
@@ -266,8 +299,9 @@ export async function generateSEOMetadata(
  */
 export async function generateAllContent(business: Partial<Business>) {
   try {
-    // Run all generators in parallel for speed
-    const [blueprint, hero, services, reviews, businessInfo, about, gallery, seo] =
+    // Run all generators in parallel for speed. Gallery is intentionally not
+    // generated here anymore -- see generateGallery's docstring.
+    const [blueprint, hero, services, reviews, businessInfo, about, seo] =
       await Promise.all([
         generateBlueprint(business),
         generateHero(business),
@@ -275,7 +309,6 @@ export async function generateAllContent(business: Partial<Business>) {
         generateReviews(business, 4),
         generateBusinessInfo(business),
         generateAbout(business),
-        generateGallery(business, 6),
         generateSEOMetadata(business),
       ]);
 
@@ -286,7 +319,7 @@ export async function generateAllContent(business: Partial<Business>) {
       reviews,
       businessInfo,
       about,
-      gallery,
+      gallery: [] as GalleryItem[],
       seo,
       generatedAt: new Date().toISOString(),
     };
