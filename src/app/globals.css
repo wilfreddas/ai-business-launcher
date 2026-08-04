@@ -127,4 +127,9 @@
   html {
     @apply font-sans;
   }
+  /* AI-generated websites use a sticky nav; keep anchor-scrolled sections
+     from being hidden underneath it. */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
 }

@@ -1,28 +1,26 @@
-"use client";
-
 import { WebsiteContent, SectionName } from "@/features/generation/types";
-import { themeCssVars } from "../theme";
-import Navbar from "./layout/Navbar";
-import Footer from "./layout/Footer";
-import HeroSection from "./HeroSection";
-import MenuSection from "./MenuSection";
-import ServicesSection from "./ServicesSection";
-import GallerySection from "./GallerySection";
-import AboutSection from "./AboutSection";
-import ReviewsSection from "./ReviewsSection";
-import LocationSection from "./LocationSection";
-import ContactSection from "./ContactSection";
+import { themeCssVars } from "../../theme";
+import Footer from "../layout/Footer";
+import HeroSection from "../HeroSection";
+import MenuSection from "../MenuSection";
+import ServicesSection from "../ServicesSection";
+import GallerySection from "../GallerySection";
+import AboutSection from "../AboutSection";
+import ReviewsSection from "../ReviewsSection";
+import LocationSection from "../LocationSection";
+import NavbarExport from "./NavbarExport";
+import ContactSectionExport from "./ContactSectionExport";
 
 interface Props {
   website: WebsiteContent;
 }
 
 /**
- * Renders whichever sections the AI blueprint chose, in the order it chose,
- * so different businesses genuinely produce different page layouts instead
- * of the same fixed section list every time.
+ * Same page structure as WebsitePreview, but built entirely from
+ * server-render-safe pieces (no useState/fetch) so it can be flattened to
+ * static HTML for the downloadable export.
  */
-export default function WebsitePreview({ website }: Props) {
+export default function WebsiteExportDocument({ website }: Props) {
   const sections = (website.sections?.length
     ? website.sections
     : ["hero", "services", "reviews", "contact"]) as SectionName[];
@@ -44,18 +42,16 @@ export default function WebsitePreview({ website }: Props) {
       case "location":
         return <LocationSection key={key} businessInfo={website.businessInfo} />;
       case "contact":
-        return <ContactSection key={key} businessInfo={website.businessInfo} />;
+        return <ContactSectionExport key={key} businessInfo={website.businessInfo} />;
       default:
         return null;
     }
   };
 
   return (
-    <div style={themeCssVars(website.theme)} className="min-h-screen">
-      <Navbar businessName={website.title} sections={sections} businessInfo={website.businessInfo} />
-
+    <div id="website-root" style={themeCssVars(website.theme)}>
+      <NavbarExport businessName={website.title} sections={sections} businessInfo={website.businessInfo} />
       <main>{sections.map((section, idx) => renderSection(section, idx))}</main>
-
       <Footer businessName={website.title} businessInfo={website.businessInfo} />
     </div>
   );

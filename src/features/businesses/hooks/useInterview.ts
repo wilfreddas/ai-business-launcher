@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { questions } from "../data/questions";
-import { Business } from "../types";
+import { Business, BusinessType } from "../types";
 
 export default function useInterview() {
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -11,8 +11,23 @@ export default function useInterview() {
     const [completed, setCompleted] = useState(false);
     const [business, setBusiness] = useState<Partial<Business> | null>(null);
 
+    // Only the questions relevant given current answers (e.g. skip "custom
+    // type" unless "Other" was picked).
+    const visibleQuestions = useMemo(
+        () => questions.filter((q) => !q.showIf || q.showIf(answers)),
+        [answers]
+    );
+
+    const question = visibleQuestions[currentQuestion];
+
+    const isCurrentAnswerValid = () => {
+        if (!question) return true;
+        if (!question.required) return true;
+        return (answers[question.field] ?? "").trim().length > 0;
+    };
+
     const next = () => {
-        if (currentQuestion < questions.length - 1) {
+        if (currentQuestion < visibleQuestions.length - 1) {
             setCurrentQuestion((previous) => previous + 1);
         } else {
             const createdBusiness = buildBusiness();
@@ -41,21 +56,32 @@ export default function useInterview() {
 
             name: answers.name ?? "",
 
-            type: answers.type as Business["type"],
+            type: (answers.type as BusinessType) ?? "other",
+
+            customType: answers.customType,
 
             description: answers.description ?? "",
 
+            phone: answers.phone ?? "",
+
+            email: answers.email ?? "",
+
             address: answers.address ?? "",
+
+            hours: answers.hours || undefined,
         };
     };
 
     return {
         currentQuestion,
+        totalQuestions: visibleQuestions.length,
+        question,
         next,
         previous,
         answers,
         updateAnswer,
         completed,
         business,
+        isCurrentAnswerValid: isCurrentAnswerValid(),
     };
 }

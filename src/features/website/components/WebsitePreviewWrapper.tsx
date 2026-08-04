@@ -1,43 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { generateWebsite } from "@/features/generation";
-import { WebsiteContent } from "@/features/generation";
-
-import WebsitePreview from "./WebsitePreview";
-
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+// Imported directly (not through the shared "@/features/generation" barrel)
+// so the client bundle only ever touches the "use server" boundary file,
+// never the real generation pipeline that pulls in the Anthropic SDK.
+import { generateWebsiteAction } from "@/features/generation/actions";
 import { Business } from "@/features/businesses/types";
+import { saveSite } from "../storage";
 
 export default function WebsitePreviewWrapper({
   business,
 }: {
   business: Partial<Business>;
 }) {
-  const [website, setWebsite] =
-    useState<WebsiteContent | null>(null);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    async function createWebsite() {
-      const result = await generateWebsite(
-        business
-      );
+    if (startedRef.current) return;
+    startedRef.current = true;
 
-      setWebsite(result);
-    }
+    startTransition(async () => {
+      try {
+        const result = await generateWebsiteAction(business);
+        const saved = saveSite(business, result);
+        router.push(`/site/${saved.slug}`);
+      } catch (err) {
+        setError("Failed to generate website. Please try again.");
+        console.error(err);
+      }
+    });
+  }, [business, router]);
 
-    createWebsite();
-  }, [business]);
-
-  if (!website) {
+  if (error) {
     return (
-      <div className="text-center">
-        Creating your AI website...
+      <div className="py-12 text-center text-red-600">
+        {error}
       </div>
     );
   }
 
   return (
-    <WebsitePreview website={website} />
+    <div className="py-12 text-center">
+      <p className="text-lg">✨ {isPending ? "Creating your AI website..." : "Preparing..."}</p>
+      <p className="mt-2 text-sm text-gray-500">
+        Designing a layout, colors, and copy for your business — this takes a few seconds.
+      </p>
+    </div>
   );
 }

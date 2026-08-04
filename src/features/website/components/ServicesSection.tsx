@@ -1,49 +1,20 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
 
+import { ServiceItem } from "@/features/generation/types";
+import OfferingsGrid from "./OfferingsGrid";
 
-const services = [
-  "Quality Service",
-  "Reliable Support",
-  "Customer Satisfaction",
-];
+interface Props {
+  services: ServiceItem[];
+}
 
-
-export default function ServicesSection({ description }: { description?: string }) {
+export default function ServicesSection({ services }: Props) {
   return (
-    <section className="bg-muted/40 px-6 py-20">
-
-      <h2 className="text-center text-4xl font-bold">
-        Our Services
-      </h2>
-
-
-      <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
-
-        {services.map((service) => (
-
-          <Card key={service}>
-
-            <CardHeader>
-              <CardTitle>
-                {service}
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              Professional service designed around your needs.
-            </CardContent>
-
-          </Card>
-
-        ))}
-
-      </div>
-
+    <section id="services" className="bg-[var(--w-bg)] px-4 py-16 sm:py-24">
+      <OfferingsGrid
+        items={services}
+        heading="Our Services"
+        subheading="What we can do for you."
+      />
     </section>
   );
 }
