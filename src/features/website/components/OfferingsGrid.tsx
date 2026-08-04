@@ -25,7 +25,10 @@ export default function OfferingsGrid({ items, heading, subheading }: Props) {
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, idx) => (
-          <div key={idx} className={cardClass}>
+          <div
+            key={idx}
+            className={`${cardClass} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg`}
+          >
             <div className="flex items-start justify-between gap-3">
               <h3 style={headingStyle} className="text-lg font-semibold">
                 {item.name}

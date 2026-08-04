@@ -271,8 +271,8 @@ export async function generateAllContent(business: Partial<Business>) {
       await Promise.all([
         generateBlueprint(business),
         generateHero(business),
-        generateServices(business, 4),
-        generateReviews(business, 3),
+        generateServices(business, 6),
+        generateReviews(business, 4),
         generateBusinessInfo(business),
         generateAbout(business),
         generateGallery(business, 6),

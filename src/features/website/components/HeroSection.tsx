@@ -3,6 +3,7 @@
 import { Phone } from "lucide-react";
 import { HeroContent, BusinessInfo } from "@/features/generation/types";
 import { headingStyle, outlineButtonClass } from "../theme";
+import { stockPhotoUrl } from "../stockPhoto";
 import CTAButton from "./CTAButton";
 
 interface Props {
@@ -16,13 +17,21 @@ export default function HeroSection({ hero, businessInfo }: Props) {
       id="hero"
       className="relative overflow-hidden bg-[var(--w-primary)] px-4 py-20 text-white sm:py-28 md:py-36"
     >
-      {/* Subtle layered background using the theme accent, purely decorative */}
+      {/* Photo backdrop, dimmed and tinted with the brand color so text stays legible */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={stockPhotoUrl(businessInfo.businessName || "hero", 1600, 900)}
+        alt=""
+        aria-hidden
+        loading="eager"
+        className="absolute inset-0 h-full w-full object-cover opacity-25"
+      />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-20"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 20% 20%, var(--w-accent), transparent 45%), radial-gradient(circle at 80% 70%, var(--w-secondary), transparent 40%)",
+            "linear-gradient(180deg, color-mix(in srgb, var(--w-primary) 88%, transparent), var(--w-primary)), radial-gradient(circle at 80% 70%, var(--w-secondary), transparent 40%)",
         }}
       />
 
