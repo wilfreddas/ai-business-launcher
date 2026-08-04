@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/Button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/Button";
 
 export default function Home() {
   return (
@@ -14,9 +15,9 @@ export default function Home() {
       </p>
 
       <div className="mt-8">
-        <Button>
+        <Link href="/create" className={buttonVariants({ size: "lg" })}>
           Create Website
-        </Button>
+        </Link>
       </div>
 
     </main>
