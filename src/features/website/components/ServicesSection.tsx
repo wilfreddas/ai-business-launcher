@@ -1,43 +1,46 @@
-export default function ServicesSection({
-  description,
-}: {
-  description: string;
-}) {
-  return (
-    <section className="px-6 py-16">
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-      <h2 className="text-3xl font-bold text-center">
+
+const services = [
+  "Quality Service",
+  "Reliable Support",
+  "Customer Satisfaction",
+];
+
+
+export default function ServicesSection({ description }: { description?: string }) {
+  return (
+    <section className="bg-muted/40 px-6 py-20">
+
+      <h2 className="text-center text-4xl font-bold">
         Our Services
       </h2>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
 
-        <div className="rounded-xl border p-6">
-          <h3 className="font-semibold">
-            Quality Service
-          </h3>
-          <p className="mt-3 text-gray-600">
-            {description}
-          </p>
-        </div>
+      <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-3">
 
-        <div className="rounded-xl border p-6">
-          <h3 className="font-semibold">
-            Professional Team
-          </h3>
-          <p className="mt-3 text-gray-600">
-            Trusted experts serving customers.
-          </p>
-        </div>
+        {services.map((service) => (
 
-        <div className="rounded-xl border p-6">
-          <h3 className="font-semibold">
-            Customer Focus
-          </h3>
-          <p className="mt-3 text-gray-600">
-            We focus on customer satisfaction.
-          </p>
-        </div>
+          <Card key={service}>
+
+            <CardHeader>
+              <CardTitle>
+                {service}
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              Professional service designed around your needs.
+            </CardContent>
+
+          </Card>
+
+        ))}
 
       </div>
 

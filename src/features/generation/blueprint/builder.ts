@@ -4,50 +4,57 @@ import {
   WebsiteBlueprint,
 } from "./types";
 
+import {
+  askAI,
+} from "@/lib/ai/client";
 
-export function buildWebsiteBlueprint(
+import {
+  websitePrompt,
+} from "@/lib/ai/prompts";
+
+
+export async function buildWebsiteBlueprint(
   business: Partial<Business>
-): WebsiteBlueprint {
-
-  const isRestaurant =
-    business.type === "restaurant";
+): Promise<WebsiteBlueprint> {
 
 
-  if (isRestaurant) {
-    return {
-      template: "restaurant",
+const prompt =
+  websitePrompt(
+    business.name ?? "",
+    business.description ?? "",
+    business.type ?? ""
+  );
 
-      sections: [
-        "hero",
-        "menu",
-        "gallery",
-        "reviews",
-        "location",
-        "contact",
-      ],
 
-      theme: {
-        style: "modern",
-        primaryColor: "#111111",
-      },
-    };
-  }
+const response =
+  await askAI(prompt);
 
+
+
+try {
+
+  return JSON.parse(response);
+
+}
+catch {
 
   return {
+
     template: "service",
 
     sections: [
       "hero",
       "services",
-      "about",
-      "reviews",
       "contact",
     ],
 
     theme: {
-      style: "classic",
-      primaryColor: "#111111",
+      style: "modern",
+      primaryColor:"#000000",
     },
+
   };
+
+}
+
 }

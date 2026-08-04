@@ -1,56 +1,60 @@
 import { Business } from "../businesses/types";
 
 import {
-  WebsiteContent,
+ WebsiteContent,
 } from "./types";
 
 import {
-  buildWebsiteBlueprint,
+ buildWebsiteBlueprint,
 } from "./blueprint";
 
 
-export function generateWebsite(
-  business: Partial<Business>
-): WebsiteContent {
+export async function generateWebsite(
+ business: Partial<Business>
+): Promise<WebsiteContent> {
 
 
-  const blueprint =
-    buildWebsiteBlueprint(business);
+const blueprint =
+ await buildWebsiteBlueprint(
+   business
+ );
 
 
-  return {
+return {
 
-    title:
-      business.name ??
-      "My Business",
-
-
-    headline:
-      blueprint.template === "restaurant"
-        ? "Fresh food made with passion"
-        : "Professional service you can trust",
+ title:
+  business.name ??
+  "My Business",
 
 
-    description:
-      business.description ??
-      "",
+ headline:
+  "Welcome to our website",
 
 
-    sections:
-      blueprint.sections.map(
-        (section) => ({
-          type: section,
+ description:
+  business.description ?? "",
 
-          heading:
-            section
-              .charAt(0)
-              .toUpperCase()
-              +
-            section.slice(1),
 
-          content:
-            business.description ?? "",
-        })
-      ),
-  };
+ sections:
+ blueprint.sections.map(
+ section => ({
+
+  type: section,
+
+  heading:
+   section
+    .charAt(0)
+    .toUpperCase()
+    +
+   section.slice(1),
+
+  content:
+   business.description ?? "",
+
+ })
+ )
+
+};
+
+
 }

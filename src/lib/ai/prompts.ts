@@ -1,19 +1,44 @@
 export function websitePrompt(
   businessName: string,
-  description: string
+  description: string,
+  type: string
 ) {
-  return `
-Create a professional mobile-friendly website.
+
+return `
+You are an expert website designer.
+
+Create a website blueprint.
 
 Business:
 ${businessName}
 
+Type:
+${type}
+
 Description:
 ${description}
 
-Return:
-- headline
-- sections
-- call to action
+
+Return ONLY JSON.
+
+Format:
+
+{
+ "template": "restaurant or service",
+ "sections": [
+   "hero",
+   "menu",
+   "gallery",
+   "reviews",
+   "location",
+   "contact"
+ ],
+ "theme": {
+   "style": "modern",
+   "primaryColor": "#000000"
+ }
+}
+
+Choose sections based on the business.
 `;
 }

@@ -1,11 +1,11 @@
-import Navbar from "./Navbar";
+import Navbar from "./layout/Navbar";
+import Footer from "./layout/Footer";
 import HeroSection from "./HeroSection";
 import ServicesSection from "./ServicesSection";
 import MenuSection from "./MenuSection";
 import ReviewsSection from "./ReviewsSection";
 import LocationSection from "./LocationSection";
 import ContactSection from "./ContactSection";
-import Footer from "./Footer";
 import GallerySection from "./GallerySection";
 
 import { WebsiteContent } from "@/features/generation";
@@ -17,7 +17,7 @@ export default function WebsitePreview({
 }) {
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-white">
 
             <Navbar businessName={website.title} />
 

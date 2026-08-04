@@ -1,5 +1,6 @@
 export type BusinessField =
   | "name"
+  | "type"
   | "description"
   | "address";
 
@@ -7,7 +8,8 @@ export type BusinessType =
   | "plumber"
   | "electrician"
   | "hvac"
-  | "landscaper"
+  | "landscaping"
+  | "lawn_care"
   | "cleaning"
   | "restaurant"
   | "dentist"
@@ -31,4 +33,9 @@ export interface InterviewQuestion {
   title: string;
   placeholder: string;
   required: boolean;
+
+  options?: {
+    label: string;
+    value: string;
+  }[];
 }
