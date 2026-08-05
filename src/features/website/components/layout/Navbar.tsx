@@ -1,20 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import type { SectionName, BusinessInfo } from "@/features/generation/types";
-import { headingStyle, primaryButtonClass } from "../../theme";
-import { formatPhoneDisplay, phoneHref } from "@/lib/format";
-
-const SECTION_LABELS: Partial<Record<SectionName, string>> = {
-  menu: "Menu",
-  services: "Services",
-  gallery: "Gallery",
-  about: "About",
-  reviews: "Reviews",
-  location: "Location",
-  contact: "Contact",
-};
+import { headingStyle } from "../../theme";
+import { SECTION_LABELS } from "../../sectionMeta";
+import CTAButton from "../CTAButton";
 
 interface Props {
   businessName: string;
@@ -46,12 +37,7 @@ export default function Navbar({ businessName, sections, businessInfo }: Props) 
         </div>
 
         <div className="hidden md:block">
-          {businessInfo.phone && (
-            <a href={`tel:${phoneHref(businessInfo.phone)}`} className={primaryButtonClass}>
-              <Phone className="h-4 w-4" />
-              {formatPhoneDisplay(businessInfo.phone)}
-            </a>
-          )}
+          {businessInfo.cta && <CTAButton businessInfo={businessInfo} variant="primary" />}
         </div>
 
         {/* Mobile toggle */}
@@ -81,15 +67,10 @@ export default function Navbar({ businessName, sections, businessInfo }: Props) 
               </a>
             ))}
           </div>
-          {businessInfo.phone && (
-            <a
-              href={`tel:${phoneHref(businessInfo.phone)}`}
-              onClick={() => setOpen(false)}
-              className={`${primaryButtonClass} mt-3 w-full`}
-            >
-              <Phone className="h-4 w-4" />
-              {formatPhoneDisplay(businessInfo.phone)}
-            </a>
+          {businessInfo.cta && (
+            <div onClick={() => setOpen(false)}>
+              <CTAButton businessInfo={businessInfo} variant="primary" className="mt-3 w-full" />
+            </div>
           )}
         </div>
       )}

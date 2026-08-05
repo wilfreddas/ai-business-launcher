@@ -7,9 +7,18 @@ import QuestionCard from "./QuestionCard";
 import ProgressBar from "./ProgressBar";
 
 import WebsitePreviewWrapper from "@/features/website/components/WebsitePreviewWrapper";
+import type { Business } from "../types";
 
 
-export default function BusinessInterview() {
+export default function BusinessInterview({
+  initialBusiness,
+  editSlug,
+}: {
+  /** Pre-fills the wizard when editing an already-published site. */
+  initialBusiness?: Partial<Business> | null;
+  /** When set, saving regenerates and overwrites this site instead of creating a new one. */
+  editSlug?: string;
+} = {}) {
 
   const {
     currentQuestion,
@@ -22,13 +31,14 @@ export default function BusinessInterview() {
     completed,
     business,
     isCurrentAnswerValid,
-  } = useInterview();
+  } = useInterview(initialBusiness);
 
 
   if (completed && business) {
     return (
       <WebsitePreviewWrapper
         business={business}
+        editSlug={editSlug}
       />
     );
   }
@@ -43,6 +53,13 @@ export default function BusinessInterview() {
   return (
 
     <div className="mx-auto max-w-2xl">
+
+      {editSlug && (
+        <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Editing <strong>{initialBusiness?.name || "this site"}</strong> — saving will regenerate
+          and replace the live site at its existing link.
+        </div>
+      )}
 
       <ProgressBar
         current={currentQuestion + 1}
@@ -123,7 +140,11 @@ export default function BusinessInterview() {
           disabled:hover:bg-black
           "
         >
-          {currentQuestion === totalQuestions - 1 ? "Create My Website" : "Next"}
+          {currentQuestion === totalQuestions - 1
+            ? editSlug
+              ? "Save Changes"
+              : "Create My Website"
+            : "Next"}
         </button>
 
       </div>

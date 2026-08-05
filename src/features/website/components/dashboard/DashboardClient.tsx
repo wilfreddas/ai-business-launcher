@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Trash2, Download, Plus } from "lucide-react";
+import { ExternalLink, Trash2, Download, Plus, Pencil, Sparkles } from "lucide-react";
 import type { SavedSite } from "../../storage";
 import { deleteSiteAction } from "../../actions";
 import { buildStaticHtmlDocument } from "../../export";
@@ -76,7 +76,9 @@ export default function DashboardClient({ initialSites }: { initialSites: SavedS
                   : String(site.business.type).replace(/_/g, " ")}
               </p>
               <p className="mt-1 text-xs text-gray-400">
-                Created {new Date(site.createdAt).toLocaleDateString()}
+                {site.updatedAt
+                  ? `Updated ${new Date(site.updatedAt).toLocaleDateString()}`
+                  : `Created ${new Date(site.createdAt).toLocaleDateString()}`}
               </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
@@ -87,6 +89,20 @@ export default function DashboardClient({ initialSites }: { initialSites: SavedS
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   View
+                </Link>
+                <Link
+                  href={`/edit/${site.slug}/content`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 font-medium hover:bg-gray-50"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  Edit Content
+                </Link>
+                <Link
+                  href={`/edit/${site.slug}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 font-medium hover:bg-gray-50"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Regenerate
                 </Link>
                 <button
                   onClick={() => handleDownload(site)}

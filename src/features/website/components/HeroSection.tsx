@@ -36,12 +36,31 @@ export default function HeroSection({ hero, businessInfo }: Props) {
         }}
       />
 
+      {/* Decorative blurred accent blobs for extra visual depth. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full opacity-30 blur-3xl"
+        style={{ backgroundColor: "var(--w-accent)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-32 -right-16 h-96 w-96 rounded-full opacity-25 blur-3xl"
+        style={{ backgroundColor: "var(--w-secondary)" }}
+      />
+
       <div className="relative mx-auto max-w-4xl text-center">
-        {businessInfo.emergencyAvailable && (
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
-            24/7 Emergency Service
-          </span>
-        )}
+        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+          {hero.badge && (
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
+              {hero.badge}
+            </span>
+          )}
+          {businessInfo.emergencyAvailable && (
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
+              24/7 Emergency Service
+            </span>
+          )}
+        </div>
 
         <h1
           style={headingStyle}

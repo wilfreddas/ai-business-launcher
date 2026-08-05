@@ -15,6 +15,27 @@ export const anthropic = apiKey
   : null;
 
 /**
+ * Pulls the first text block out of a Claude response. Looks across all
+ * returned content blocks rather than assuming content[0] is text -- with
+ * several generators now running in parallel per site, being defensive here
+ * avoids failing a whole section (falling back to placeholder content) over
+ * an ordering quirk.
+ */
+function extractText(message: Anthropic.Message): string {
+  const textBlock = message.content.find(
+    (block): block is Extract<typeof block, { type: "text" }> => block.type === "text"
+  );
+  if (textBlock) {
+    return textBlock.text;
+  }
+
+  const blockTypes = message.content.map((block) => block.type).join(", ") || "none";
+  throw new Error(
+    `Unexpected response format from Claude (stop_reason: ${message.stop_reason}, content block types: ${blockTypes})`
+  );
+}
+
+/**
  * Call Claude API with structured prompts
  * Handles fallback mode for local development
  */
@@ -22,7 +43,6 @@ export async function callClaude(
   prompt: string,
   options?: {
     maxTokens?: number;
-    temperature?: number;
     system?: string;
   }
 ): Promise<string> {
@@ -32,10 +52,11 @@ export async function callClaude(
     return getFallbackResponse(prompt);
   }
 
+  // Note: claude-sonnet-5 rejects the `temperature` param outright (400
+  // invalid_request_error), so it's deliberately not sent here.
   const message = await anthropic.messages.create({
     model: "claude-sonnet-5",
     max_tokens: options?.maxTokens || 2048,
-    temperature: options?.temperature || 0.7,
     system: options?.system || "You are a helpful assistant.",
     messages: [
       {
@@ -45,11 +66,36 @@ export async function callClaude(
     ],
   });
 
-  if (message.content[0].type === "text") {
-    return message.content[0].text;
+  return extractText(message);
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+/**
+ * Multi-turn chat completion for the live per-site chat widget. Unlike
+ * callClaude/callClaudeJSON (a single one-off prompt), this sends real
+ * conversation history so follow-up questions have context, and returns
+ * plain conversational text rather than JSON.
+ */
+export async function callClaudeChat(
+  messages: ChatMessage[],
+  options: { system: string; maxTokens?: number }
+): Promise<string> {
+  if (!anthropic) {
+    return "Thanks for reaching out! Live chat isn't fully configured on this preview yet — please use the contact section below to reach us directly.";
   }
 
-  throw new Error("Unexpected response format from Claude");
+  const message = await anthropic.messages.create({
+    model: "claude-sonnet-5",
+    max_tokens: options.maxTokens || 500,
+    system: options.system,
+    messages: messages.map((m) => ({ role: m.role, content: m.content })),
+  });
+
+  return extractText(message);
 }
 
 /**
@@ -66,7 +112,6 @@ export async function callClaudeJSON<T>(
   let response = await callClaude(prompt, {
     maxTokens: options?.maxTokens || 2048,
     system: jsonSystemPrompt,
-    temperature: 0.3,
   });
 
   response = response.replace(/```json\n?|\n?```/g, "").trim();
@@ -81,7 +126,6 @@ export async function callClaudeJSON<T>(
     response = await callClaude(strictPrompt, {
       maxTokens: options?.maxTokens || 2048,
       system: "Return ONLY valid JSON. Nothing else.",
-      temperature: 0.1,
     });
 
     response = response.replace(/```json\n?|\n?```/g, "").trim();
@@ -126,6 +170,55 @@ function getFallbackResponse(prompt: string): string {
     });
   }
 
+  // Checked before the generic "hero"/"headline" branch below since these
+  // prompts happen to mention "hero" in passing (e.g. "placed under the hero").
+  if (lower.includes("stat bar")) {
+    return JSON.stringify([
+      { value: "100%", label: "Satisfaction Guaranteed" },
+      { value: "Free", label: "No-Obligation Quotes" },
+      { value: "Fast", label: "Response Times" },
+    ]);
+  }
+
+  if (lower.includes("why choose us")) {
+    return JSON.stringify([
+      { icon: "✅", title: "Reliable Service", description: "We show up on time and do it right the first time." },
+      { icon: "💬", title: "Clear Communication", description: "No surprises — you'll always know what to expect." },
+      { icon: "⭐", title: "Customer Focused", description: "Your satisfaction is what we measure ourselves by." },
+      { icon: "🤝", title: "Fair, Honest Pricing", description: "Transparent quotes with no hidden fees." },
+    ]);
+  }
+
+  if (lower.includes("how it works")) {
+    return JSON.stringify([
+      { title: "Reach Out", description: "Contact us with what you need." },
+      { title: "We Confirm Details", description: "We'll follow up to schedule a time that works for you." },
+      { title: "We Get It Done", description: "Our team takes care of everything, start to finish." },
+    ]);
+  }
+
+  if (lower.includes("pricing section")) {
+    return JSON.stringify([
+      { name: "Basic", priceLabel: "Get a Custom Quote", features: ["Core service", "Flexible scheduling"], highlighted: false },
+      { name: "Standard", priceLabel: "Get a Custom Quote", badge: "Most Popular", features: ["Everything in Basic", "Priority scheduling", "Extended coverage"], highlighted: true },
+      { name: "Premium", priceLabel: "Get a Custom Quote", features: ["Everything in Standard", "Dedicated support", "Custom add-ons"], highlighted: false },
+    ]);
+  }
+
+  if (lower.includes("faq section")) {
+    return JSON.stringify([
+      { question: "How do I get started?", answer: "Reach out using the contact section and we'll follow up to schedule a time that works for you." },
+      { question: "What areas do you serve?", answer: "Contact us with your location and we'll confirm we cover your area." },
+    ]);
+  }
+
+  if (lower.includes("chat widget")) {
+    return JSON.stringify({
+      greeting: "Hi there! 👋 How can I help you today?",
+      quickReplies: ["What are your hours?", "Do you offer free quotes?", "How do I book?"],
+    });
+  }
+
   if (lower.includes("business hours") && lower.includes("reformat")) {
     const match = prompt.match(/Raw input: "([^"]*)"/);
     return JSON.stringify({ hours: match?.[1] ?? "" });
@@ -152,6 +245,7 @@ function getFallbackResponse(prompt: string): string {
       headline: "Welcome to your professional business website",
       subheading:
         "We provide top-quality services for your needs. Get started today.",
+      badge: "Now Booking",
     });
   }
 

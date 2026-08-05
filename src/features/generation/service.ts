@@ -34,6 +34,12 @@ export async function generateWebsite(
       businessInfo: generatedContent.businessInfo,
       about: generatedContent.about,
       gallery: generatedContent.gallery,
+      stats: generatedContent.stats,
+      features: generatedContent.features,
+      process: generatedContent.process,
+      pricing: generatedContent.pricing,
+      faq: generatedContent.faq,
+      chatIntro: generatedContent.chatIntro,
       blueprint: generatedContent.blueprint,
       seo: generatedContent.seo,
       
