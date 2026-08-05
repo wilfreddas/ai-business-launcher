@@ -14,9 +14,12 @@ export default function Home() {
         a professional website for you in minutes.
       </p>
 
-      <div className="mt-8">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link href="/create" className={buttonVariants({ size: "lg" })}>
           Create Website
+        </Link>
+        <Link href="/dashboard" className={buttonVariants({ size: "lg", variant: "outline" })}>
+          View Dashboard
         </Link>
       </div>
 

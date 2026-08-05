@@ -2,7 +2,7 @@
 
 import { Business } from "@/features/businesses/types";
 import { callClaudeJSON } from "./client";
-import { getIndustryProfile } from "./industryProfiles";
+import { getIndustryProfile, resolveIndustryLabel } from "./industryProfiles";
 import {
   blueprintPrompt,
   heroPrompt,
@@ -12,6 +12,12 @@ import {
   hoursFormatPrompt,
   aboutPrompt,
   galleryPrompt,
+  statsPrompt,
+  featuresPrompt,
+  processPrompt,
+  pricingPrompt,
+  faqPrompt,
+  chatIntroPrompt,
   seoPrompt,
   CONTENT_GENERATION_SYSTEM,
 } from "./prompts";
@@ -23,6 +29,12 @@ import type {
   BusinessInfo,
   AboutContent,
   GalleryItem,
+  StatItem,
+  FeatureItem,
+  ProcessStep,
+  PricingTier,
+  FAQItem,
+  ChatIntro,
   SEOMetadata,
 } from "@/features/generation/types";
 
@@ -34,6 +46,12 @@ export type {
   BusinessInfo,
   AboutContent,
   GalleryItem,
+  StatItem,
+  FeatureItem,
+  ProcessStep,
+  PricingTier,
+  FAQItem,
+  ChatIntro,
   SEOMetadata,
 };
 
@@ -244,11 +262,14 @@ export async function generateAbout(
 }
 
 /**
- * Generate gallery captions. Not called by generateAllContent anymore --
- * the gallery section showed random, industry-irrelevant stock photos and
- * looked worse than not having one. Kept here (and GallerySection/the
- * rendering path still work) in case real per-business photos become
- * available later and this gets wired back in.
+ * Generate gallery captions. NOT called by generateAllContent -- "gallery"
+ * was briefly reintroduced as a selectable section, but stockPhoto.ts
+ * (Picsum, seeded but keyword-blind) has no way to return photos that
+ * actually look like the business's industry, so a "gallery" of random
+ * unrelated stock photos looked worse than not having one (this is the
+ * second time this exact call has been made — see git history). Kept here
+ * in case a real keyword-matched photo source (e.g. the Unsplash API with a
+ * free key) gets wired into stockPhoto.ts later.
  */
 export async function generateGallery(
   business: Partial<Business>,
@@ -265,6 +286,115 @@ export async function generateGallery(
       label: `Photo ${i + 1}`,
       caption: "Our work in action.",
     }));
+  }
+}
+
+/** Generate the stat-bar entries shown just under the hero. */
+export async function generateStats(
+  business: Partial<Business>
+): Promise<StatItem[]> {
+  try {
+    return await callClaudeJSON<StatItem[]>(statsPrompt(business), {
+      system: CONTENT_GENERATION_SYSTEM,
+    });
+  } catch (error) {
+    console.error("Stats generation failed:", error);
+    return [
+      { value: "100%", label: "Satisfaction Guaranteed" },
+      { value: "Free", label: "No-Obligation Quotes" },
+    ];
+  }
+}
+
+/** Generate the "why choose us" feature cards. */
+export async function generateFeatures(
+  business: Partial<Business>
+): Promise<FeatureItem[]> {
+  try {
+    return await callClaudeJSON<FeatureItem[]>(featuresPrompt(business), {
+      system: CONTENT_GENERATION_SYSTEM,
+    });
+  } catch (error) {
+    console.error("Features generation failed:", error);
+    const industryLabel = resolveIndustryLabel(business);
+    return [
+      { icon: "✅", title: "Reliable Service", description: `We show up on time and get your ${industryLabel.toLowerCase()} needs done right the first time.` },
+      { icon: "💬", title: "Clear Communication", description: "No surprises — you'll always know what to expect." },
+      { icon: "⭐", title: "Customer Focused", description: "Your satisfaction is what we measure ourselves by." },
+    ];
+  }
+}
+
+/** Generate the "how it works" numbered process steps. */
+export async function generateProcess(
+  business: Partial<Business>
+): Promise<ProcessStep[]> {
+  try {
+    return await callClaudeJSON<ProcessStep[]>(processPrompt(business), {
+      system: CONTENT_GENERATION_SYSTEM,
+    });
+  } catch (error) {
+    console.error("Process generation failed:", error);
+    return [
+      { title: "Reach Out", description: "Contact us with what you need." },
+      { title: "We Confirm Details", description: "We'll follow up to schedule a time that works for you." },
+      { title: "We Get It Done", description: "Our team takes care of everything, start to finish." },
+    ];
+  }
+}
+
+/** Generate the pricing tier cards (no fabricated dollar amounts — see pricingPrompt). */
+export async function generatePricing(
+  business: Partial<Business>
+): Promise<PricingTier[]> {
+  try {
+    return await callClaudeJSON<PricingTier[]>(pricingPrompt(business), {
+      system: CONTENT_GENERATION_SYSTEM,
+    });
+  } catch (error) {
+    console.error("Pricing generation failed:", error);
+    return [
+      { name: "Basic", priceLabel: "Get a Custom Quote", features: ["Core service", "Flexible scheduling"], highlighted: false },
+      { name: "Standard", priceLabel: "Get a Custom Quote", badge: "Most Popular", features: ["Everything in Basic", "Priority scheduling"], highlighted: true },
+      { name: "Premium", priceLabel: "Get a Custom Quote", features: ["Everything in Standard", "Dedicated support"], highlighted: false },
+    ];
+  }
+}
+
+/** Generate the FAQ entries. */
+export async function generateFAQ(
+  business: Partial<Business>
+): Promise<FAQItem[]> {
+  try {
+    return await callClaudeJSON<FAQItem[]>(faqPrompt(business), {
+      system: CONTENT_GENERATION_SYSTEM,
+    });
+  } catch (error) {
+    console.error("FAQ generation failed:", error);
+    return [
+      {
+        question: "How do I get started?",
+        answer: "Reach out using the contact section and we'll follow up to schedule a time that works for you.",
+      },
+    ];
+  }
+}
+
+/** Generate the live chat widget's opening greeting + quick replies. */
+export async function generateChatIntro(
+  business: Partial<Business>
+): Promise<ChatIntro> {
+  try {
+    return await callClaudeJSON<ChatIntro>(chatIntroPrompt(business), {
+      system: CONTENT_GENERATION_SYSTEM,
+      maxTokens: 300,
+    });
+  } catch (error) {
+    console.error("Chat intro generation failed:", error);
+    return {
+      greeting: `Hi there! 👋 Welcome to ${business.name || "our site"}. How can I help?`,
+      quickReplies: ["What are your hours?", "Do you offer free quotes?", "How do I get in touch?"],
+    };
   }
 }
 
@@ -295,22 +425,47 @@ export async function generateSEOMetadata(
 }
 
 /**
- * Generate complete website content (all sections in parallel)
+ * Generate complete website content. The blueprint runs first (it's what
+ * decides which sections this specific business gets), then every other
+ * generator runs in parallel -- section-specific generators (stats,
+ * features, process, pricing, faq) only actually fire if the blueprint
+ * chose that section, so we're not spending tokens/time writing a pricing
+ * table for a business whose page won't show one.
  */
 export async function generateAllContent(business: Partial<Business>) {
   try {
-    // Run all generators in parallel for speed. Gallery is intentionally not
-    // generated here anymore -- see generateGallery's docstring.
-    const [blueprint, hero, services, reviews, businessInfo, about, seo] =
-      await Promise.all([
-        generateBlueprint(business),
-        generateHero(business),
-        generateServices(business, 6),
-        generateReviews(business, 4),
-        generateBusinessInfo(business),
-        generateAbout(business),
-        generateSEOMetadata(business),
-      ]);
+    const blueprint = await generateBlueprint(business);
+    const sections = new Set(blueprint.sections);
+
+    const [
+      hero,
+      services,
+      reviews,
+      businessInfo,
+      about,
+      seo,
+      stats,
+      features,
+      process,
+      pricing,
+      faq,
+    ] = await Promise.all([
+      generateHero(business),
+      generateServices(business, 6),
+      generateReviews(business, 4),
+      generateBusinessInfo(business),
+      generateAbout(business),
+      generateSEOMetadata(business),
+      sections.has("stats") ? generateStats(business) : Promise.resolve([]),
+      sections.has("features") ? generateFeatures(business) : Promise.resolve([]),
+      sections.has("process") ? generateProcess(business) : Promise.resolve([]),
+      sections.has("pricing") ? generatePricing(business) : Promise.resolve([]),
+      sections.has("faq") ? generateFAQ(business) : Promise.resolve([]),
+      // chatIntro (generateChatIntro) is deliberately NOT called here -- the
+      // live chat widget isn't shown on sites by default (see
+      // WebsitePreview's docstring), so there's no reason to spend an API
+      // call generating its greeting/quick-replies right now.
+    ]);
 
     return {
       blueprint,
@@ -320,6 +475,12 @@ export async function generateAllContent(business: Partial<Business>) {
       businessInfo,
       about,
       gallery: [] as GalleryItem[],
+      stats,
+      features,
+      process,
+      pricing,
+      faq,
+      chatIntro: { greeting: "", quickReplies: [] as string[] },
       seo,
       generatedAt: new Date().toISOString(),
     };

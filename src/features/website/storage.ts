@@ -21,17 +21,31 @@ export interface SavedSite {
   business: Partial<Business>;
   website: WebsiteContent;
   createdAt: string;
+  /** Set the first time the site is edited/regenerated after creation. */
+  updatedAt?: string;
 }
 
 const INDEX_KEY = "sites:index";
 
 // In-memory fallback, used only when Redis isn't configured.
 const memorySites = new Map<string, SavedSite>();
+let warnedAboutMemoryFallback = false;
 
 function getRedis(): Redis | null {
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
+  if (!url || !token) {
+    if (!warnedAboutMemoryFallback) {
+      warnedAboutMemoryFallback = true;
+      console.warn(
+        "⚠️  KV_REST_API_URL/KV_REST_API_TOKEN not set — using in-memory site storage. " +
+          "Sites won't survive a server restart, and in dev this Map isn't guaranteed to be " +
+          "shared across every route (e.g. a Server Component render vs. an API route handler) " +
+          "depending on how Next bundles them. Set up Upstash Redis for reliable behavior."
+      );
+    }
+    return null;
+  }
   return new Redis({ url, token });
 }
 
@@ -71,6 +85,38 @@ export async function saveSite(
     business,
     website,
     createdAt: new Date().toISOString(),
+  };
+
+  if (redis) {
+    await redis.set(`site:${slug}`, site);
+    await redis.sadd(INDEX_KEY, slug);
+  } else {
+    memorySites.set(slug, site);
+  }
+
+  return site;
+}
+
+/**
+ * Regenerates and overwrites an existing site in place -- same slug, same
+ * link, so a re-shared URL keeps working. Used by the "edit" flow (site
+ * maintenance / adding features to an already-launched site), as opposed to
+ * saveSite, which always mints a new slug for a brand-new site.
+ */
+export async function updateSite(
+  slug: string,
+  business: Partial<Business>,
+  website: WebsiteContent
+): Promise<SavedSite> {
+  const redis = getRedis();
+  const existing = redis ? await redis.get<SavedSite>(`site:${slug}`) : memorySites.get(slug);
+
+  const site: SavedSite = {
+    slug,
+    business,
+    website,
+    createdAt: existing?.createdAt ?? new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   if (redis) {

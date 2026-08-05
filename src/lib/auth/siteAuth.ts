@@ -4,8 +4,8 @@
 // accounts system. If SITE_PASSWORD isn't set, the gate is a no-op (open
 // app, same as before). If it is set, every request needs a signed cookie
 // proving the visitor entered that password. Uses the Web Crypto API so the
-// same code works in both Middleware (Edge runtime) and Server Actions
-// (Node runtime).
+// same code works in both src/proxy.ts (Node.js runtime as of Next.js 16)
+// and Server Actions.
 
 export const SITE_AUTH_COOKIE = "site_auth";
 

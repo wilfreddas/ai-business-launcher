@@ -15,12 +15,24 @@
 
 import type { Business } from "@/features/businesses/types";
 import { generateWebsite } from "./service";
-import { saveSite } from "@/features/website/storage";
+import { saveSite, updateSite } from "@/features/website/storage";
 
 export async function generateWebsiteAction(
   business: Partial<Business>
 ): Promise<{ slug: string }> {
   const website = await generateWebsite(business);
   const saved = await saveSite(business, website);
+  return { slug: saved.slug };
+}
+
+// Regenerates an already-published site (maintenance / adding features to
+// an existing client site) and overwrites it at the same slug, so the link
+// they've already shared keeps working.
+export async function updateWebsiteAction(
+  slug: string,
+  business: Partial<Business>
+): Promise<{ slug: string }> {
+  const website = await generateWebsite(business);
+  const saved = await updateSite(slug, business, website);
   return { slug: saved.slug };
 }
