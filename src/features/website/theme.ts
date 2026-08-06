@@ -60,6 +60,19 @@ export const headingStyle: CSSProperties = {
   fontFamily: "var(--w-heading-font)",
 };
 
+/**
+ * Groups the AI-chosen `theme.style` into two structural layout families so
+ * sections can render genuinely different DOM/layout, not just different
+ * colors and fonts. Colors/fonts alone weren't enough -- two sites with
+ * different palettes but an identical hero/grid/card layout still read as
+ * "the same template" to a real visitor. "refined" gets a cleaner, more
+ * restrained layout (split hero, list-style offerings); everything else
+ * gets the bolder, more decorative layout (centered photo hero, card grid).
+ */
+export function isRefinedStyle(style: WebsiteThemeSpec["style"]): boolean {
+  return style === "professional" || style === "minimal" || style === "luxury";
+}
+
 /** Solid primary button (main CTA). */
 export const primaryButtonClass =
   "inline-flex items-center justify-center gap-2 rounded-[var(--w-radius-full)] bg-[var(--w-primary)] px-6 py-3.5 font-semibold text-white shadow-sm transition hover:opacity-90 active:opacity-80";
