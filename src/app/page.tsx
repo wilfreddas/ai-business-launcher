@@ -236,7 +236,24 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="group overflow-hidden rounded-xl border border-gray-200 bg-white transition hover:-translate-y-0.5 hover:shadow-md"
                 >
-                  <div className="h-1.5 bg-gray-900" />
+                  {/* Live, scaled-down preview of the real site -- not a
+                      screenshot or a placeholder, the actual page. Falls
+                      back to just being a normal link if a site's host
+                      blocks framing. */}
+                  <div className="relative h-48 overflow-hidden border-b border-gray-100 bg-gray-50">
+                    <iframe
+                      src={item.url}
+                      title={item.name}
+                      loading="lazy"
+                      tabIndex={-1}
+                      aria-hidden
+                      className="pointer-events-none absolute left-0 top-0 origin-top-left"
+                      style={{ width: "1280px", height: "800px", transform: "scale(0.29)" }}
+                    />
+                    {/* Transparent overlay so the whole tile is clickable
+                        instead of interactive elements inside the iframe. */}
+                    <div className="absolute inset-0" />
+                  </div>
                   <div className="p-6">
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="font-semibold text-gray-900">{item.name}</h3>
