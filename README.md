@@ -4,7 +4,8 @@ AI Business Launcher turns a short interview about a small business into a real,
 
 ## What it does
 
-1. **Log in** — an optional shared password gate (`SITE_PASSWORD`); once past it, the app shell has two tabs: **Home** (dashboard) and **Create Website**.
+0. **Public homepage** (`/`) — the company's own marketing site (hero, service "streams," example builds, contact form, "Client Portal" login link). Content lives in `src/lib/company.ts`, not scattered across the page. Always public, even when the login gate below is on.
+1. **Log in** — an optional real-accounts gate (`AUTH_USERS`); once past it, the app shell has two tabs: **Home** (dashboard) and **Create Website**, plus "Logged in as [name]" and a logout button.
 2. **Interview** (`/create`) — collects business name, type (or a free-text custom type), description, phone, email, address, and optional hours.
 3. **Generate** — a Next.js Server Action calls the Anthropic API. The design blueprint runs first (it decides which 6-9 sections this specific business gets, from a 12-section vocabulary: hero, stats, menu/services, features, process, pricing, about, reviews, faq, location, contact), then every section's content generates in parallel — hero copy, services/menu items, reviews, About, a stat bar, a "Why Choose Us" grid, a "How It Works" process, pricing tiers, an FAQ, and SEO metadata. Real contact details (phone/email/address/hours) always come from what the owner typed — the AI never invents them, and neither pricing dollar amounts nor specific stats/credentials are fabricated (see "Design principle" below).
 4. **Publish** — after generation, you land on a success screen with a "View Live Site" link (opens in a new tab) and a link back to the dashboard. The site itself is saved server-side and immediately reachable at `/site/[slug]`, a clean page with no builder UI, meant to look like the business's actual website (working `tel:`/`mailto:` links, a Google Maps "Get Directions" link, a real contact form).
@@ -40,9 +41,13 @@ Create `.env.local` in the project root:
 # Required — without this, generation silently falls back to placeholder content.
 ANTHROPIC_API_KEY=sk-ant-...
 
-# Optional — shared password gate for the whole app (src/proxy.ts).
-# Leave unset to keep the app open.
-# SITE_PASSWORD=choose-a-password
+# Optional — real per-person login for the app shell (src/proxy.ts).
+# Leave unset to keep the app open. AUTH_USERS is a JSON array of
+# {name, email, password}; AUTH_SECRET signs the login cookie (any random
+# string, different in production than in dev). The public marketing
+# homepage ("/") stays reachable either way.
+# AUTH_USERS=[{"name":"Wilfred","email":"you@example.com","password":"..."}]
+# AUTH_SECRET=some-random-string
 
 # Optional — cross-device site storage (src/features/website/storage.ts).
 # Set up "Upstash for Redis" via the Vercel Marketplace to get these.
@@ -63,10 +68,10 @@ Visit `http://localhost:3000`.
 ## Deploying (Vercel)
 
 1. Import the repo into Vercel (auto-detects Next.js, no config needed).
-2. Project Settings → Environment Variables: add `ANTHROPIC_API_KEY` (and `SITE_PASSWORD` if you want the gate) for Production.
+2. Project Settings → Environment Variables: add `ANTHROPIC_API_KEY` (and `AUTH_USERS`/`AUTH_SECRET` if you want the login gate) for Production.
 3. Project → Storage tab → Create Database → **Upstash** (Redis), so `KV_REST_API_URL`/`KV_REST_API_TOKEN` get set automatically — this is what makes `/site/[slug]` links work from any device, not just the one that created them.
 4. Redeploy after adding env vars — they don't apply retroactively.
-5. In Settings → Deployment Protection, turn off Vercel's own "Vercel Authentication" for Production if you're using the app's own password gate instead — otherwise visitors hit Vercel's login before ever reaching yours.
+5. In Settings → Deployment Protection, turn off Vercel's own "Vercel Authentication" for Production if you're using the app's own login gate instead — otherwise visitors hit Vercel's login before ever reaching yours.
 
 ## Project structure
 

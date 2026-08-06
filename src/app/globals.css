@@ -139,4 +139,12 @@
   section[id] {
     scroll-margin-top: 5rem;
   }
+  /* Tailwind's preflight resets <button> to cursor: default, which makes
+     every button in the app (Continue, Log out, Save Changes, etc.) look
+     unclickable on hover. Restore the pointer cursor everywhere except
+     genuinely disabled buttons. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
 }

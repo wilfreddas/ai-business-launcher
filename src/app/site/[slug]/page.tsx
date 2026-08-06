@@ -56,5 +56,5 @@ export default async function SitePage({
 
   // Deliberately no app navbar/dashboard chrome here — this route is meant
   // to look and behave like the business's actual public website.
-  return <WebsitePreview website={site.website} />;
+  return <WebsitePreview website={site.website} slug={slug} />;
 }

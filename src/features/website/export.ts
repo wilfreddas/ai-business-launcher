@@ -97,6 +97,7 @@ ${fontsHref ? `<link rel="preconnect" href="https://fonts.googleapis.com">\n<lin
 <style>
   html { scroll-behavior: smooth; overflow-x: hidden; }
   body { margin: 0; font-family: ${bodyFontCss}; overflow-wrap: break-word; }
+  button:not(:disabled) { cursor: pointer; }
   section[id] { scroll-margin-top: 5rem; }
   details > summary::-webkit-details-marker { display: none; }
   :root {
