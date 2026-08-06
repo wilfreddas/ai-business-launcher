@@ -36,15 +36,22 @@ export default function WebsiteExportDocument({ website }: Props) {
   const renderSection = (section: SectionName, key: number) => {
     switch (section) {
       case "hero":
-        return <HeroSection key={key} hero={website.hero} businessInfo={website.businessInfo} />;
+        return (
+          <HeroSection
+            key={key}
+            hero={website.hero}
+            businessInfo={website.businessInfo}
+            style={website.theme.style}
+          />
+        );
       case "stats":
         return <StatsSection key={key} stats={website.stats} />;
       case "menu":
-        return <MenuSection key={key} services={website.services} />;
+        return <MenuSection key={key} services={website.services} style={website.theme.style} />;
       case "services":
-        return <ServicesSection key={key} services={website.services} />;
+        return <ServicesSection key={key} services={website.services} style={website.theme.style} />;
       case "features":
-        return <FeaturesSection key={key} features={website.features} />;
+        return <FeaturesSection key={key} features={website.features} style={website.theme.style} />;
       case "process":
         return <ProcessSection key={key} steps={website.process} />;
       case "pricing":

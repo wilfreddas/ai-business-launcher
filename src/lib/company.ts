@@ -44,7 +44,6 @@ export interface PortfolioItem {
 // Example builds shown as proof of work. Swap or remove any of these --
 // flag it if any shouldn't be public.
 export const PORTFOLIO: PortfolioItem[] = [
-  { name: "PixelForge Studio", url: "https://pixelforge-studio-neon.vercel.app", category: "Creative studio" },
   { name: "Bella Vista", url: "https://bella-vista-nu.vercel.app", category: "Restaurant" },
   { name: "RaceWash", url: "https://racewash.vercel.app", category: "Auto detailing" },
   { name: "Lawn King", url: "https://lawnking.vercel.app", category: "Lawn care" },

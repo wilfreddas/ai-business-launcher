@@ -227,7 +227,7 @@ export default function Home() {
               businesses.
             </p>
 
-            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto mt-12 grid max-w-3xl gap-5 sm:grid-cols-2">
               {PORTFOLIO.map((item) => (
                 <a
                   key={item.url}

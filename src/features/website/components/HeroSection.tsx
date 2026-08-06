@@ -1,8 +1,8 @@
 "use client";
 
 import { Phone } from "lucide-react";
-import { HeroContent, BusinessInfo } from "@/features/generation/types";
-import { headingStyle, outlineButtonClass } from "../theme";
+import { HeroContent, BusinessInfo, WebsiteThemeSpec } from "@/features/generation/types";
+import { headingStyle, outlineButtonClass, isRefinedStyle } from "../theme";
 import { stockPhotoUrl } from "../stockPhoto";
 import { formatPhoneDisplay, phoneHref } from "@/lib/format";
 import CTAButton from "./CTAButton";
@@ -10,9 +10,18 @@ import CTAButton from "./CTAButton";
 interface Props {
   hero: HeroContent;
   businessInfo: BusinessInfo;
+  style: WebsiteThemeSpec["style"];
 }
 
-export default function HeroSection({ hero, businessInfo }: Props) {
+export default function HeroSection({ hero, businessInfo, style }: Props) {
+  if (isRefinedStyle(style)) {
+    return <SplitHero hero={hero} businessInfo={businessInfo} />;
+  }
+  return <PhotoBackdropHero hero={hero} businessInfo={businessInfo} />;
+}
+
+/** Bold/modern/friendly: full-bleed dimmed photo, centered text, decorative blobs. */
+function PhotoBackdropHero({ hero, businessInfo }: Omit<Props, "style">) {
   return (
     <section
       id="hero"
@@ -89,6 +98,72 @@ export default function HeroSection({ hero, businessInfo }: Props) {
               {formatPhoneDisplay(businessInfo.phone)}
             </a>
           )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Professional/minimal/luxury: clean split layout, real (non-dimmed) photo in a card, left-aligned text. */
+function SplitHero({ hero, businessInfo }: Omit<Props, "style">) {
+  return (
+    <section id="hero" className="relative overflow-hidden bg-[var(--w-bg)] px-4 py-20 sm:py-28 md:py-32">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-16">
+        <div className="text-center md:text-left">
+          <div className="mb-5 flex flex-wrap items-center justify-center gap-2 md:justify-start">
+            {hero.badge && (
+              <span
+                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
+                style={{ backgroundColor: "var(--w-secondary)", color: "var(--w-primary)" }}
+              >
+                {hero.badge}
+              </span>
+            )}
+            {businessInfo.emergencyAvailable && (
+              <span
+                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
+                style={{ backgroundColor: "var(--w-secondary)", color: "var(--w-primary)" }}
+              >
+                24/7 Emergency Service
+              </span>
+            )}
+          </div>
+
+          <h1
+            style={headingStyle}
+            className="text-4xl font-bold leading-tight text-[var(--w-text)] sm:text-5xl md:text-6xl"
+          >
+            {hero.headline}
+          </h1>
+
+          <p className="mx-auto mt-5 max-w-lg text-lg text-[var(--w-text)]/70 md:mx-0">
+            {hero.subheading}
+          </p>
+
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:justify-start">
+            <CTAButton businessInfo={businessInfo} variant="primary" className="w-full sm:w-auto" />
+
+            {businessInfo.phone && businessInfo.ctaType !== "call" && (
+              <a
+                href={`tel:${phoneHref(businessInfo.phone)}`}
+                className={`w-full sm:w-auto ${outlineButtonClass}`}
+              >
+                <Phone className="h-4 w-4" />
+                {formatPhoneDisplay(businessInfo.phone)}
+              </a>
+            )}
+          </div>
+        </div>
+
+        <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--w-radius)] shadow-xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={stockPhotoUrl(businessInfo.businessName || "hero", 900, 675)}
+            alt=""
+            aria-hidden
+            loading="eager"
+            className="h-full w-full object-cover"
+          />
         </div>
       </div>
     </section>
