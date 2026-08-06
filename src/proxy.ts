@@ -1,13 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SITE_AUTH_COOKIE, isAuthGateEnabled, isValidAuthCookie } from "@/lib/auth/siteAuth";
 
-// Routes that stay public even when SITE_PASSWORD is set. The password gate
-// protects the internal tool (dashboard/create/edit) -- it must NOT block
-// real customers from viewing a published site or using its contact form /
-// live chat, or the whole "real website customers can use" point of this
-// app breaks the moment the owner turns the gate on.
+// Routes that stay public even when the login gate is on. The gate protects
+// the internal tool (dashboard/create/edit) -- it must NOT block the public
+// marketing homepage, real customers viewing a published site, or a site's
+// contact form / live chat, or the whole point of this app breaks the
+// moment the gate is turned on.
 function isPubliclyReachable(pathname: string): boolean {
   return (
+    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/site/") ||
     pathname.startsWith("/api/contact") ||
@@ -16,7 +17,7 @@ function isPubliclyReachable(pathname: string): boolean {
 }
 
 export async function proxy(request: NextRequest) {
-  // Gate is entirely opt-in: set SITE_PASSWORD to turn it on.
+  // Gate is entirely opt-in: set AUTH_USERS to turn it on.
   if (!isAuthGateEnabled()) {
     return NextResponse.next();
   }

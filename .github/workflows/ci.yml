@@ -1,0 +1,39 @@
+name: CI
+
+# Runs on every push and PR into main so a broken build can never land
+# silently -- this is the automated gate the project didn't have before:
+# previously the only thing checking a change was Claude running tsc/eslint
+# by hand in a session.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint src --max-warnings=0
+
+      - name: Build
+        # No secrets required: ANTHROPIC_API_KEY and the Upstash vars are all
+        # optional at build time (client.ts / storage.ts fall back gracefully
+        # when unset) -- this catches build-breaking errors like the
+        # react-dom/server-in-a-Server-Component bug hit earlier in this
+        # project, which tsc and eslint alone did not catch.
+        run: npx next build

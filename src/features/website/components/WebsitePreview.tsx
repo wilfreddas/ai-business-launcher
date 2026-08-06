@@ -18,9 +18,12 @@ import FAQSection from "./FAQSection";
 import LocationSection from "./LocationSection";
 import ContactSection from "./ContactSection";
 import Reveal from "./Reveal";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 interface Props {
   website: WebsiteContent;
+  /** Used to link the footer's Privacy Policy to /site/[slug]/privacy. */
+  slug: string;
 }
 
 /**
@@ -32,7 +35,7 @@ interface Props {
  * deliberately not rendered here -- it's a candidate paid add-on feature
  * rather than something every site gets by default.
  */
-export default function WebsitePreview({ website }: Props) {
+export default function WebsitePreview({ website, slug }: Props) {
   const sections = (website.sections?.length
     ? website.sections
     : ["hero", "services", "reviews", "contact"]) as SectionName[];
@@ -84,7 +87,9 @@ export default function WebsitePreview({ website }: Props) {
         )}
       </main>
 
-      <Footer businessName={website.title} businessInfo={website.businessInfo} />
+      <Footer businessName={website.title} businessInfo={website.businessInfo} slug={slug} />
+
+      <ScrollToTopButton className="bg-[var(--w-primary)] text-white" />
     </div>
   );
 }

@@ -1,11 +1,13 @@
 // src/lib/auth/siteAuth.ts
 //
-// A deliberately simple, stateless shared-password gate — not a full
-// accounts system. If SITE_PASSWORD isn't set, the gate is a no-op (open
-// app, same as before). If it is set, every request needs a signed cookie
-// proving the visitor entered that password. Uses the Web Crypto API so the
-// same code works in both src/proxy.ts (Node.js runtime as of Next.js 16)
-// and Server Actions.
+// Real per-person login: a signed cookie proves both "this request is
+// authenticated" and, just as importantly, *as which person* -- so the app
+// can show "Logged in as Wilfred" instead of just a locked/unlocked state.
+// Still deliberately simple: accounts live in the AUTH_USERS env var (see
+// users.ts), and the cookie is a stateless HMAC rather than a server-side
+// session store, so there's no database involved for 2-3 people.
+
+import { getAuthUsers, type AuthUser } from "./users";
 
 export const SITE_AUTH_COOKIE = "site_auth";
 
@@ -15,47 +17,69 @@ function toHex(buffer: ArrayBuffer): string {
     .join("");
 }
 
-async function computeToken(secret: string): Promise<string> {
+function signingSecret(): string {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) {
+    console.warn(
+      "⚠️  AUTH_SECRET not set — using an insecure fallback signing key. Set a real AUTH_SECRET before deploying to production."
+    );
+  }
+  return secret || "dev-only-insecure-fallback-secret";
+}
+
+async function sign(value: string): Promise<string> {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
-    enc.encode(secret),
+    enc.encode(signingSecret()),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
   );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    enc.encode("ai-business-launcher:authenticated")
-  );
+  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(value));
   return toHex(signature);
 }
 
-/** Whether the password gate is active at all. */
+/** Whether the login gate is active at all -- opt-in via AUTH_USERS. */
 export function isAuthGateEnabled(): boolean {
-  return Boolean(process.env.SITE_PASSWORD);
+  return getAuthUsers().length > 0;
 }
 
-/** The cookie value to set once someone enters the correct password. */
-export async function getAuthCookieValue(): Promise<string | null> {
-  const secret = process.env.SITE_PASSWORD;
-  if (!secret) return null;
-  return computeToken(secret);
+/**
+ * Builds the signed cookie value for an authenticated user's email.
+ * The email is base64url-encoded before signing/storing so a "." delimiter
+ * is always safe to split on, even though real email addresses contain dots.
+ */
+export async function buildAuthCookieValue(email: string): Promise<string> {
+  const normalized = email.trim().toLowerCase();
+  const encoded = Buffer.from(normalized, "utf8").toString("base64url");
+  const signature = await sign(encoded);
+  return `${encoded}.${signature}`;
 }
 
-/** Checks a submitted password against the configured one. */
-export function isCorrectPassword(password: string): boolean {
-  const configured = process.env.SITE_PASSWORD;
-  if (!configured) return true;
-  return password === configured;
+/** Verifies a cookie value and returns the authenticated user, or null. */
+export async function getUserFromCookie(value: string | undefined): Promise<AuthUser | null> {
+  if (!isAuthGateEnabled()) return null;
+  if (!value) return null;
+
+  const [encoded, signature] = value.split(".");
+  if (!encoded || !signature) return null;
+
+  const expected = await sign(encoded);
+  if (signature !== expected) return null;
+
+  let email: string;
+  try {
+    email = Buffer.from(encoded, "base64url").toString("utf8");
+  } catch {
+    return null;
+  }
+
+  return getAuthUsers().find((u) => u.email.toLowerCase() === email) ?? null;
 }
 
-/** Checks whether an existing cookie value proves prior authentication. */
+/** Checks whether an existing cookie value proves valid prior authentication. */
 export async function isValidAuthCookie(value: string | undefined): Promise<boolean> {
-  const secret = process.env.SITE_PASSWORD;
-  if (!secret) return true;
-  if (!value) return false;
-  const expected = await computeToken(secret);
-  return value === expected;
+  if (!isAuthGateEnabled()) return true;
+  return Boolean(await getUserFromCookie(value));
 }
