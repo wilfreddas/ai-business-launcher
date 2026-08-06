@@ -95,8 +95,8 @@ export function buildStaticHtmlDocument(website: WebsiteContent): string {
 ${fontsHref ? `<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="${fontsHref}" rel="stylesheet">` : ""}
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  html { scroll-behavior: smooth; }
-  body { margin: 0; font-family: ${bodyFontCss}; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+  body { margin: 0; font-family: ${bodyFontCss}; overflow-wrap: break-word; }
   section[id] { scroll-margin-top: 5rem; }
   details > summary::-webkit-details-marker { display: none; }
   :root {

@@ -25,7 +25,7 @@ export default async function EditWebsitePage({
   }
 
   return (
-    <main className="min-h-screen p-10">
+    <main className="min-h-screen p-6 sm:p-10">
       <BusinessInterview initialBusiness={site.business} editSlug={slug} />
     </main>
   );

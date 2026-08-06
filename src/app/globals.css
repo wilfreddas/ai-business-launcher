@@ -126,6 +126,13 @@
   }
   html {
     @apply font-sans;
+    /* Defensive: AI-generated copy length isn't fully controlled (a long
+       business name or headline), so guard against any one element pushing
+       the page wider than the viewport on mobile. */
+    overflow-x: hidden;
+  }
+  body {
+    overflow-wrap: break-word;
   }
   /* AI-generated websites use a sticky nav; keep anchor-scrolled sections
      from being hidden underneath it. */

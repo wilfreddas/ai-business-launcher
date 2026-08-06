@@ -1,10 +1,27 @@
 "use server";
 
-import { deleteSite, getSite, updateSite } from "./storage";
+import { deleteSite, duplicateSite, getSite, updateSite, updateSiteTracking } from "./storage";
+import type { ClientStatus } from "./storage";
 import type { WebsiteContent } from "@/features/generation/types";
 
 export async function deleteSiteAction(slug: string): Promise<void> {
   await deleteSite(slug);
+}
+
+export async function duplicateSiteAction(slug: string): Promise<{ slug: string }> {
+  const site = await duplicateSite(slug);
+  if (!site) {
+    throw new Error(`Site "${slug}" not found`);
+  }
+  return { slug: site.slug };
+}
+
+/** Internal Client Tracking edit (status/notes) -- no AI, no content change. */
+export async function updateSiteTrackingAction(
+  slug: string,
+  patch: { status?: ClientStatus; notes?: string }
+): Promise<void> {
+  await updateSiteTracking(slug, patch);
 }
 
 /**
@@ -22,6 +39,20 @@ export async function updateSiteContentAction(
   if (!site) {
     throw new Error(`Site "${slug}" not found`);
   }
-  const saved = await updateSite(slug, site.business, website);
+
+  // Contact fields are edited in the UI via website.businessInfo (what's
+  // actually rendered on the live site), but the underlying business record
+  // is the source of truth used if the site is ever AI-regenerated later --
+  // keep them in sync here so a manual contact-info edit doesn't silently
+  // get reverted by a future "Regenerate".
+  const business = {
+    ...site.business,
+    phone: website.businessInfo.phone,
+    email: website.businessInfo.email,
+    address: website.businessInfo.address,
+    hours: website.businessInfo.hours,
+  };
+
+  const saved = await updateSite(slug, business, website);
   return { slug: saved.slug };
 }

@@ -57,6 +57,17 @@ const BUSINESS_INFO_FIELDS: FieldSchema<BusinessInfo>[] = [
   },
 ];
 
+// Real facts, not marketing copy -- kept as a separate schema so it's
+// obviously the "fix a typo'd phone number" section, not part of the AI's
+// copywriting. Saving these updates both what's shown on the live site and
+// the underlying business record (see updateSiteContentAction).
+const CONTACT_FIELDS: FieldSchema<BusinessInfo>[] = [
+  { key: "phone", label: "Phone", type: "text", placeholder: "(555) 123-4567" },
+  { key: "email", label: "Email", type: "text", placeholder: "hello@yourbusiness.com" },
+  { key: "address", label: "Address", type: "text", placeholder: "Albany, NY" },
+  { key: "hours", label: "Hours", type: "text", placeholder: "Mon-Fri 9:00 AM - 5:00 PM" },
+];
+
 const SERVICE_FIELDS: FieldSchema<ServiceItem>[] = [
   { key: "name", label: "Name", type: "text" },
   { key: "description", label: "Description", type: "textarea" },
@@ -167,6 +178,14 @@ export default function ContentEditor({
 
       <EditorCard title="Hero">
         <EditableFields value={website.hero} onChange={(v) => update("hero", v)} fields={HERO_FIELDS} />
+      </EditorCard>
+
+      <EditorCard title="Contact Info" description="Fixing a typo here doesn't require a full AI regenerate.">
+        <EditableFields
+          value={website.businessInfo}
+          onChange={(v) => update("businessInfo", v)}
+          fields={CONTACT_FIELDS}
+        />
       </EditorCard>
 
       <EditorCard title="Business info & call-to-action">
