@@ -12,9 +12,12 @@
 // Server Components, Route Handlers) -- never from a "use client" component.
 
 import "server-only";
+import { cache } from "react";
 import { Redis } from "@upstash/redis";
 import type { Business } from "@/features/businesses/types";
 import type { WebsiteContent } from "@/features/generation/types";
+
+export type ClientStatus = "lead" | "in_progress" | "live";
 
 export interface SavedSite {
   slug: string;
@@ -23,6 +26,10 @@ export interface SavedSite {
   createdAt: string;
   /** Set the first time the site is edited/regenerated after creation. */
   updatedAt?: string;
+  /** Internal pipeline status for the Client Tracking table. Defaults to "lead" if unset. */
+  status?: ClientStatus;
+  /** Free-text internal note, e.g. "waiting on logo" or "wants pricing removed". */
+  notes?: string;
 }
 
 const INDEX_KEY = "sites:index";
@@ -129,14 +136,17 @@ export async function updateSite(
   return site;
 }
 
-export async function getSite(slug: string): Promise<SavedSite | null> {
+// Wrapped in React's request-level cache so calling getSite twice in one
+// request (e.g. generateMetadata + the page component both need it) only
+// hits Redis/memory once.
+export const getSite = cache(async function getSite(slug: string): Promise<SavedSite | null> {
   const redis = getRedis();
   if (redis) {
     const site = await redis.get<SavedSite>(`site:${slug}`);
     return site ?? null;
   }
   return memorySites.get(slug) ?? null;
-}
+});
 
 export async function listSites(): Promise<SavedSite[]> {
   const redis = getRedis();
@@ -156,6 +166,43 @@ export async function listSites(): Promise<SavedSite[]> {
   return sites.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
+}
+
+/**
+ * Clones an existing site's business + website content under a brand-new
+ * slug -- a starting point for a similar client instead of running the full
+ * AI interview again. Deliberately does NOT copy status/notes/updatedAt:
+ * this is a new tracked site with its own fresh pipeline state.
+ */
+export async function duplicateSite(slug: string): Promise<SavedSite | null> {
+  const existing = await getSite(slug);
+  if (!existing) return null;
+  return saveSite(existing.business, existing.website);
+}
+
+/**
+ * Patches only the internal Client Tracking fields (status/notes) -- doesn't
+ * touch content or the business record, and deliberately doesn't bump
+ * `updatedAt` (that's reserved for actual content edits/regenerations, not
+ * pipeline bookkeeping).
+ */
+export async function updateSiteTracking(
+  slug: string,
+  patch: { status?: ClientStatus; notes?: string }
+): Promise<SavedSite | null> {
+  const redis = getRedis();
+  const existing = redis ? await redis.get<SavedSite>(`site:${slug}`) : memorySites.get(slug);
+  if (!existing) return null;
+
+  const site: SavedSite = { ...existing, ...patch };
+
+  if (redis) {
+    await redis.set(`site:${slug}`, site);
+  } else {
+    memorySites.set(slug, site);
+  }
+
+  return site;
 }
 
 export async function deleteSite(slug: string): Promise<void> {

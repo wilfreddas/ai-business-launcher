@@ -2,15 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Trash2, Download, Plus, Pencil, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AlertTriangle, ExternalLink, Trash2, Download, Plus, Pencil, Sparkles, Copy } from "lucide-react";
 import type { SavedSite } from "../../storage";
-import { deleteSiteAction } from "../../actions";
+import { deleteSiteAction, duplicateSiteAction } from "../../actions";
 import { buildStaticHtmlDocument } from "../../export";
 import ClientTrackingTable from "./ClientTrackingTable";
 
-export default function DashboardClient({ initialSites }: { initialSites: SavedSite[] }) {
+export default function DashboardClient({
+  initialSites,
+  persistentStorage,
+}: {
+  initialSites: SavedSite[];
+  /** False when Upstash isn't configured -- sites only live in this server process's memory. */
+  persistentStorage: boolean;
+}) {
+  const router = useRouter();
   const [sites, setSites] = useState<SavedSite[]>(initialSites);
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
+  const [duplicatingSlug, setDuplicatingSlug] = useState<string | null>(null);
 
   async function handleDelete(slug: string) {
     if (!confirm("Delete this saved website? This can't be undone.")) return;
@@ -20,6 +30,18 @@ export default function DashboardClient({ initialSites }: { initialSites: SavedS
       setSites((prev) => prev.filter((s) => s.slug !== slug));
     } finally {
       setDeletingSlug(null);
+    }
+  }
+
+  async function handleDuplicate(slug: string) {
+    setDuplicatingSlug(slug);
+    try {
+      const { slug: newSlug } = await duplicateSiteAction(slug);
+      // Drop straight into the no-code editor for the copy -- swapping in
+      // the new client's name/contact info is the very next thing to do.
+      router.push(`/edit/${newSlug}/content`);
+    } finally {
+      setDuplicatingSlug(null);
     }
   }
 
@@ -50,6 +72,18 @@ export default function DashboardClient({ initialSites }: { initialSites: SavedS
           Create New Website
         </Link>
       </div>
+
+      {!persistentStorage && (
+        <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            <strong>Persistent storage isn&apos;t configured.</strong> Sites are only kept in this
+            server&apos;s memory and can be lost on the next deploy or restart. Add &quot;Upstash for
+            Redis&quot; via the Vercel Marketplace to this project (Storage tab → Create Database)
+            to fix this before you have real client data on the line.
+          </p>
+        </div>
+      )}
 
       {sites.length === 0 ? (
         <div className="mt-16 flex flex-col items-center gap-3 rounded-xl border border-dashed p-12 text-center">
@@ -110,6 +144,14 @@ export default function DashboardClient({ initialSites }: { initialSites: SavedS
                 >
                   <Download className="h-3.5 w-3.5" />
                   Download
+                </button>
+                <button
+                  onClick={() => handleDuplicate(site.slug)}
+                  disabled={duplicatingSlug === site.slug}
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 font-medium hover:bg-gray-50 disabled:opacity-50"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  {duplicatingSlug === site.slug ? "Duplicating..." : "Duplicate"}
                 </button>
                 <button
                   onClick={() => handleDelete(site.slug)}

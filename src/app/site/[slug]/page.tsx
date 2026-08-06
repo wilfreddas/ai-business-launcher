@@ -1,6 +1,35 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getSite } from "@/features/website/storage";
 import WebsitePreview from "@/features/website/components/WebsitePreview";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const site = await getSite(slug);
+
+  if (!site) {
+    return { title: "Site not found" };
+  }
+
+  const { seo, title, description } = site.website;
+  const pageTitle = seo?.title || title;
+  const pageDescription = seo?.metaDescription || description;
+
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    keywords: seo?.keywords,
+    openGraph: {
+      title: seo?.ogTitle || pageTitle,
+      description: seo?.ogDescription || pageDescription,
+      type: "website",
+    },
+  };
+}
 
 export default async function SitePage({
   params,
