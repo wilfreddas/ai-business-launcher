@@ -9,10 +9,13 @@ import { SITE_AUTH_COOKIE, isAuthGateEnabled, isValidAuthCookie } from "@/lib/au
 function isPubliclyReachable(pathname: string): boolean {
   return (
     pathname === "/" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/site/") ||
     pathname.startsWith("/api/contact") ||
-    pathname.startsWith("/api/site-chat")
+    pathname.startsWith("/api/site-chat") ||
+    pathname.startsWith("/api/site-review")
   );
 }
 
