@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSite } from "@/features/website/storage";
+import { listApprovedReviews } from "@/features/reviews/storage";
 import WebsitePreview from "@/features/website/components/WebsitePreview";
+import { buildLocalBusinessSchema } from "@/features/website/structuredData";
 
 export async function generateMetadata({
   params,
@@ -54,7 +56,20 @@ export default async function SitePage({
     );
   }
 
+  const schema = buildLocalBusinessSchema(site.website, slug);
+  const reviews = await listApprovedReviews(slug);
+
   // Deliberately no app navbar/dashboard chrome here — this route is meant
   // to look and behave like the business's actual public website.
-  return <WebsitePreview website={site.website} slug={slug} />;
+  return (
+    <>
+      {/* LocalBusiness structured data -- helps this business show up
+          correctly in Google's local/map-style results. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <WebsitePreview website={site.website} slug={slug} reviews={reviews} />
+    </>
+  );
 }

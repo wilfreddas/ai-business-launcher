@@ -61,7 +61,11 @@ export default function WebsiteExportDocument({ website }: Props) {
       case "about":
         return <AboutSection key={key} about={website.about} />;
       case "reviews":
-        return <ReviewsSection key={key} reviews={website.reviews} />;
+        // Static export has no live server behind it and no join to this
+        // site's real review data at download time, so it shows nothing
+        // here rather than embedding stale or fake content. See
+        // ReviewsSection's allowSubmissions prop.
+        return <ReviewsSection key={key} reviews={[]} allowSubmissions={false} />;
       case "faq":
         return <FAQSection key={key} faq={website.faq} />;
       case "location":

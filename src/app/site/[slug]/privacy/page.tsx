@@ -133,10 +133,10 @@ export default async function PrivacyPolicyPage({
               Third parties
             </h2>
             <p className="mt-2">
-              This website was built using AI Business Launcher, which uses Anthropic&apos;s Claude
-              API to help generate site content. If this site includes a chat assistant, messages you
-              send to it are processed by Anthropic solely to generate a reply, and are not stored in
-              a persistent database by us.
+              This website is operated with the help of third-party service providers. If this
+              site includes a chat assistant, messages you send to it are processed by that
+              provider solely to generate a reply, and are not stored in a persistent database by
+              us.
             </p>
           </section>
 

@@ -11,7 +11,7 @@
 export const COMPANY = {
   // TODO: swap once you + Aaron settle on a name.
   name: "Your Company Name",
-  tagline: "AI-generated websites for local businesses, live in minutes.",
+  tagline: "Custom websites for local businesses, live in minutes.",
   // TODO: swap for a real inbox/number once you have one you want public.
   email: "hello@example.com",
   phone: "",
@@ -28,9 +28,9 @@ export interface Stream {
 // advertise anything unreleased yet.
 export const STREAMS: Stream[] = [
   {
-    name: "AI Website Generation",
+    name: "Website Design & Launch",
     description:
-      "A short interview in, a real, working website out — designed, written, and launched by AI in minutes, not weeks.",
+      "A short interview in, a real, working website out — designed, written, and launched in minutes, not weeks.",
     status: "live",
   },
 ];

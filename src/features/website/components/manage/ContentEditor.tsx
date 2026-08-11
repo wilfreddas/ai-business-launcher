@@ -13,14 +13,15 @@ import type {
   ProcessStep,
   PricingTier,
   FAQItem,
-  ReviewItem,
   BusinessInfo,
 } from "@/features/generation/types";
+import type { CustomerReview } from "@/features/reviews/types";
 import { updateSiteContentAction } from "../../actions";
 import SectionToggle from "./SectionToggle";
 import EditableFields from "./EditableFields";
 import EditableList from "./EditableList";
 import EditorCard from "./EditorCard";
+import ReviewModeration from "./ReviewModeration";
 import type { FieldSchema } from "./fieldTypes";
 
 // Field schemas live here, next to the one place they're used. Adding
@@ -110,18 +111,14 @@ const FAQ_FIELDS: FieldSchema<FAQItem>[] = [
   { key: "answer", label: "Answer", type: "textarea" },
 ];
 
-const REVIEW_FIELDS: FieldSchema<ReviewItem>[] = [
-  { key: "text", label: "Review text", type: "textarea" },
-  { key: "author", label: "Author (first name)", type: "text" },
-  { key: "rating", label: "Rating (1-5)", type: "number" },
-];
-
 export default function ContentEditor({
   slug,
   initialWebsite,
+  initialReviews,
 }: {
   slug: string;
   initialWebsite: WebsiteContent;
+  initialReviews: CustomerReview[];
 }) {
   const [website, setWebsite] = useState<WebsiteContent>(initialWebsite);
   const [isPending, startTransition] = useTransition();
@@ -165,7 +162,7 @@ export default function ContentEditor({
       <div>
         <h1 className="text-2xl font-bold">Edit Content</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Direct edits, no AI involved — change text, prices, or which sections show, then save.
+          Direct edits only, no full regenerate — change text, prices, or which sections show, then save.
         </p>
       </div>
 
@@ -180,7 +177,7 @@ export default function ContentEditor({
         <EditableFields value={website.hero} onChange={(v) => update("hero", v)} fields={HERO_FIELDS} />
       </EditorCard>
 
-      <EditorCard title="Contact Info" description="Fixing a typo here doesn't require a full AI regenerate.">
+      <EditorCard title="Contact Info" description="Fixing a typo here doesn't require a full regenerate.">
         <EditableFields
           value={website.businessInfo}
           onChange={(v) => update("businessInfo", v)}
@@ -263,14 +260,11 @@ export default function ContentEditor({
         />
       </EditorCard>
 
-      <EditorCard title="Reviews">
-        <EditableList
-          items={website.reviews}
-          onChange={(v) => update("reviews", v)}
-          fields={REVIEW_FIELDS}
-          itemLabel="Review"
-          emptyItem={{ text: "", author: "", rating: 5 }}
-        />
+      <EditorCard
+        title="Reviews"
+        description="Real reviews submitted by customers on the live site. Approve the ones you want shown, reject or delete the rest."
+      >
+        <ReviewModeration slug={slug} initialReviews={initialReviews} />
       </EditorCard>
 
       <div className="sticky bottom-0 flex items-center justify-between gap-3 border-t border-gray-200 bg-white/95 py-4 backdrop-blur-sm">

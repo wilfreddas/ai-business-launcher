@@ -89,7 +89,7 @@ export default function WebsitePreviewWrapper({
   return (
     <div className="py-12 text-center">
       <p className="text-lg">
-        ✨ {isPending ? (editSlug ? "Updating your website..." : "Creating your AI website...") : "Preparing..."}
+        ✨ {isPending ? (editSlug ? "Updating your website..." : "Creating your website...") : "Preparing..."}
       </p>
       <p className="mt-2 text-sm text-gray-500">
         {editSlug

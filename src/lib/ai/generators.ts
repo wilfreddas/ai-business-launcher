@@ -7,7 +7,6 @@ import {
   blueprintPrompt,
   heroPrompt,
   servicesPrompt,
-  reviewsPrompt,
   businessInfoPrompt,
   hoursFormatPrompt,
   aboutPrompt,
@@ -134,34 +133,10 @@ export async function generateServices(
   }
 }
 
-/**
- * Generate customer reviews
- */
-export async function generateReviews(
-  business: Partial<Business>,
-  count: number = 3
-): Promise<ReviewItem[]> {
-  try {
-    return await callClaudeJSON<ReviewItem[]>(
-      reviewsPrompt(business, count),
-      {
-        system: CONTENT_GENERATION_SYSTEM,
-      }
-    );
-  } catch (error) {
-    console.error("Reviews generation failed:", error);
-    const fallbackReviews = [
-      { text: "Excellent service! Very professional and timely.", author: "John D." },
-      { text: "Highly recommend. Great attention to detail.", author: "Sarah M." },
-      { text: "Outstanding work. Will definitely use again!", author: "Mike T." },
-      { text: "Friendly, reliable, and easy to work with.", author: "Priya K." },
-    ];
-    return Array.from({ length: count }, (_, i) => ({
-      ...fallbackReviews[i % fallbackReviews.length],
-      rating: 5,
-    }));
-  }
-}
+// Reviews are no longer AI-generated -- see features/reviews for the real,
+// customer-submitted review system that replaced this. (Removed rather than
+// left dead: a generator that fabricates "authentic-sounding" testimonials
+// is exactly the liability this replaced.)
 
 /** What we actually ask the AI to write — marketing copy only. */
 interface BusinessMarketingCopy {
@@ -440,7 +415,6 @@ export async function generateAllContent(business: Partial<Business>) {
     const [
       hero,
       services,
-      reviews,
       businessInfo,
       about,
       seo,
@@ -452,7 +426,6 @@ export async function generateAllContent(business: Partial<Business>) {
     ] = await Promise.all([
       generateHero(business),
       generateServices(business, 6),
-      generateReviews(business, 4),
       generateBusinessInfo(business),
       generateAbout(business),
       generateSEOMetadata(business),
@@ -471,7 +444,10 @@ export async function generateAllContent(business: Partial<Business>) {
       blueprint,
       hero,
       services,
-      reviews,
+      // Kept as an always-empty array (not removed from the shape) so
+      // service.ts/types.ts don't need a wider migration -- see
+      // features/reviews for where real reviews actually live now.
+      reviews: [] as ReviewItem[],
       businessInfo,
       about,
       gallery: [] as GalleryItem[],

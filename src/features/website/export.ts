@@ -107,9 +107,6 @@ ${rootVarsCss}
 </head>
 <body>
 ${bodyMarkup}
-<p style="text-align:center;font-size:12px;color:#9ca3af;padding:16px;">
-  Built with AI Business Launcher
-</p>
 </body>
 </html>`;
 }

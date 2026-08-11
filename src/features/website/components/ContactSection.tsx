@@ -14,7 +14,7 @@ type SubmitState = "idle" | "loading" | "success" | "error";
 
 export default function ContactSection({ businessInfo }: Props) {
   const [state, setState] = useState<SubmitState>("idle");
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", message: "", website: "" });
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,7 +29,7 @@ export default function ContactSection({ businessInfo }: Props) {
 
       if (!res.ok) throw new Error("Request failed");
       setState("success");
-      setForm({ name: "", email: "", message: "" });
+      setForm({ name: "", email: "", message: "", website: "" });
     } catch {
       setState("error");
     }
@@ -48,6 +48,19 @@ export default function ContactSection({ businessInfo }: Props) {
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Honeypot -- hidden from real visitors, catches bots that
+                auto-fill every field. Left in the tab order last and
+                unlabeled so screen readers skip past it naturally. */}
+            <input
+              type="text"
+              name="website"
+              value={form.website}
+              onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              className="absolute left-[-9999px] h-px w-px overflow-hidden opacity-0"
+            />
             <input
               type="text"
               required

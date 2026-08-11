@@ -1,6 +1,7 @@
 "use client";
 
 import { WebsiteContent, SectionName } from "@/features/generation/types";
+import type { CustomerReview } from "@/features/reviews/types";
 import { themeCssVars } from "../theme";
 import Navbar from "./layout/Navbar";
 import Footer from "./layout/Footer";
@@ -22,8 +23,12 @@ import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 interface Props {
   website: WebsiteContent;
-  /** Used to link the footer's Privacy Policy to /site/[slug]/privacy. */
+  /** Used to link the footer's Privacy Policy to /site/[slug]/privacy, and
+   * to submit new reviews against the right site. */
   slug: string;
+  /** Real, approved customer reviews -- fetched server-side by the page,
+   * not part of WebsiteContent (see features/reviews). */
+  reviews: CustomerReview[];
 }
 
 /**
@@ -35,7 +40,7 @@ interface Props {
  * deliberately not rendered here -- it's a candidate paid add-on feature
  * rather than something every site gets by default.
  */
-export default function WebsitePreview({ website, slug }: Props) {
+export default function WebsitePreview({ website, slug, reviews }: Props) {
   const sections = (website.sections?.length
     ? website.sections
     : ["hero", "services", "reviews", "contact"]) as SectionName[];
@@ -68,7 +73,7 @@ export default function WebsitePreview({ website, slug }: Props) {
       case "about":
         return <AboutSection key={key} about={website.about} />;
       case "reviews":
-        return <ReviewsSection key={key} reviews={website.reviews} />;
+        return <ReviewsSection key={key} reviews={reviews} slug={slug} />;
       case "faq":
         return <FAQSection key={key} faq={website.faq} />;
       case "location":

@@ -37,8 +37,9 @@ const lora = Lora({
   subsets: ["latin"],
 });
 
+// TODO: swap for the final company name once branding is settled (see src/lib/company.ts).
 export const metadata: Metadata = {
-  title: "AI Business Launcher",
+  title: "Business Launcher",
   description: "Turn a short interview about your business into a real, working website in minutes.",
 };
 

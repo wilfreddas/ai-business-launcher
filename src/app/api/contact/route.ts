@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isRateLimited } from "@/lib/rateLimit";
 
 interface ContactPayload {
   name?: string;
   email?: string;
   message?: string;
   business?: string;
+  /**
+   * Honeypot: a field real visitors never see (hidden off-screen in the
+   * form), so a non-empty value here means whatever submitted this filled
+   * out every field it could find -- a bot, not a person.
+   */
+  website?: string;
+}
+
+function getClientIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+  return request.headers.get("x-real-ip") || "unknown";
 }
 
 /**
@@ -21,6 +34,19 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  // Honeypot tripped -- report success so the bot has no signal to adapt
+  // to, but silently drop the submission instead of logging/forwarding it.
+  if (body.website?.trim()) {
+    return NextResponse.json({ success: true });
+  }
+
+  if (isRateLimited(`contact:${getClientIp(request)}`)) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again in a few minutes." },
+      { status: 429 }
+    );
   }
 
   const { name, email, message, business } = body;
