@@ -5,10 +5,11 @@ import {
   ChevronDown,
   Clock,
   ExternalLink,
+  Globe,
+  Palette,
+  RefreshCw,
   Rocket,
   ShieldCheck,
-  Sparkles,
-  Wand2,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/Button";
 import { COMPANY, STREAMS, PORTFOLIO } from "@/lib/company";
@@ -83,12 +84,12 @@ export default function Home() {
 
           <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 shadow-sm">
-              <Sparkles className="h-3.5 w-3.5" />
-              Built with AI, launched in minutes
+              <Rocket className="h-3.5 w-3.5" />
+              Custom-built, launched in minutes
             </span>
 
             <h1 className="mt-6 text-4xl font-bold leading-tight text-gray-900 sm:text-5xl md:text-6xl">
-              Real websites for local businesses, built by AI.
+              Real websites for local businesses, built fast.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-gray-600">
               A short interview in, a real, working website out — designed, written, and launched
@@ -117,9 +118,9 @@ export default function Home() {
                 body: "A live website in minutes, not weeks of waiting on a design queue.",
               },
               {
-                icon: Wand2,
+                icon: Palette,
                 title: "No templates",
-                body: "Every site is designed and written fresh by AI for that business specifically.",
+                body: "Every site is designed and written fresh for that business specifically.",
               },
               {
                 icon: ShieldCheck,
@@ -127,7 +128,7 @@ export default function Home() {
                 body: "Real contact forms, working phone/email links, and SEO basics — not a mockup.",
               },
               {
-                icon: Sparkles,
+                icon: RefreshCw,
                 title: "Easy to update",
                 body: "Change prices, text, or sections yourself anytime — no code, no waiting on us.",
               },
@@ -179,7 +180,7 @@ export default function Home() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 text-gray-900">
-                      <Sparkles className="h-5 w-5" />
+                      <Globe className="h-5 w-5" />
                     </div>
                     {stream.status === "live" ? (
                       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
@@ -202,7 +203,7 @@ export default function Home() {
             <div className="mx-auto mt-14 grid max-w-2xl grid-cols-1 gap-6 border-t border-gray-200 pt-10 text-left sm:grid-cols-3 sm:text-center">
               {[
                 { step: "Step 1", label: "Quick interview" },
-                { step: "Step 2", label: "AI designs & writes it" },
+                { step: "Step 2", label: "We design & write it" },
                 { step: "Step 3", label: "Live, ready to share" },
               ].map((item) => (
                 <div key={item.step}>

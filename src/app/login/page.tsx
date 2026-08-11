@@ -44,7 +44,12 @@ export default async function LoginPage({
           className="w-full rounded-lg border p-3"
         />
 
-        {params.error && (
+        {params.error === "locked" && (
+          <p className="text-sm font-medium text-red-600">
+            Too many failed attempts. Please wait a few minutes and try again.
+          </p>
+        )}
+        {params.error === "1" && (
           <p className="text-sm font-medium text-red-600">That email or password isn&apos;t right.</p>
         )}
 

@@ -124,36 +124,6 @@ Make descriptions benefit-focused, not feature-focused.`;
 }
 
 /**
- * Generate customer reviews (social proof)
- * CRITICAL: Must return JSON array
- */
-export function reviewsPrompt(
-  business: Partial<Business>,
-  count: number = 3
-): string {
-  const industryLabel = resolveIndustryLabel(business);
-  return `You are a marketing specialist. Generate realistic customer reviews for a ${industryLabel} business.
-
-Business: ${business.name}
-Description: ${business.description}
-
-Create ${count} positive, authentic-sounding customer reviews that highlight different benefits.
-Each review should be 1-2 sentences.
-
-Return ONLY this JSON array. No markdown. No explanation:
-[
-  {
-    "text": "Customer review here (1-2 sentences)",
-    "author": "First name only",
-    "rating": 5
-  }
-]
-
-Make reviews specific and credible - mention actual benefits, not generic praise.
-Vary the review themes (quality, service speed, customer service, value, etc) and vary ratings slightly (mostly 5, the occasional 4 reads as more credible).`;
-}
-
-/**
  * Generate business marketing copy (tagline, description, CTA).
  * CRITICAL: Must return JSON
  *

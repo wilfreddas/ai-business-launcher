@@ -64,9 +64,9 @@ export async function generateWebsite(
  */
 export async function regenerateSection(
   business: Partial<Business>,
-  section: "hero" | "services" | "reviews" | "businessInfo" | "about" | "gallery"
+  section: "hero" | "services" | "businessInfo" | "about" | "gallery"
 ): Promise<
-  WebsiteContent["hero"] | WebsiteContent["services"] | WebsiteContent["reviews"] |
+  WebsiteContent["hero"] | WebsiteContent["services"] |
   WebsiteContent["businessInfo"] | WebsiteContent["about"] | WebsiteContent["gallery"]
 > {
   switch (section) {
@@ -77,10 +77,6 @@ export async function regenerateSection(
     case "services": {
       const { generateServices } = await import("@/lib/ai/generators");
       return await generateServices(business, 4);
-    }
-    case "reviews": {
-      const { generateReviews } = await import("@/lib/ai/generators");
-      return await generateReviews(business, 3);
     }
     case "businessInfo": {
       const { generateBusinessInfo } = await import("@/lib/ai/generators");

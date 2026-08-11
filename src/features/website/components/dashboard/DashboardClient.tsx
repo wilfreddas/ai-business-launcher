@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ExternalLink, Trash2, Download, Plus, Pencil, Sparkles, Copy } from "lucide-react";
+import { AlertTriangle, ExternalLink, Trash2, Download, Plus, Pencil, RefreshCw, Copy } from "lucide-react";
 import type { SavedSite } from "../../storage";
 import { deleteSiteAction, duplicateSiteAction } from "../../actions";
 import { buildStaticHtmlDocument } from "../../export";
@@ -61,7 +61,7 @@ export default function DashboardClient({
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="mt-2 text-gray-600">Manage your AI-generated websites.</p>
+          <p className="mt-2 text-gray-600">Manage your websites.</p>
         </div>
 
         <Link
@@ -135,7 +135,7 @@ export default function DashboardClient({
                   href={`/edit/${site.slug}`}
                   className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 font-medium hover:bg-gray-50"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <RefreshCw className="h-3.5 w-3.5" />
                   Regenerate
                 </Link>
                 <button

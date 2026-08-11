@@ -23,3 +23,38 @@ export function isRateLimited(key: string): boolean {
   hits.set(key, recent);
   return recent.length > MAX_REQUESTS_PER_WINDOW;
 }
+
+// --- Login lockout ---
+//
+// Separate from the generic limiter above: this only counts FAILED login
+// attempts (a legitimate user retyping a password a couple times shouldn't
+// get themselves locked out), keyed by source IP so an attacker can't lock
+// out a real teammate's account just by guessing their email. Same
+// in-memory caveat applies -- resets on restart, not shared across
+// serverless instances -- but it stops a naive scripted brute-force loop,
+// which is the realistic threat against a 2-account login form.
+
+const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const LOGIN_MAX_ATTEMPTS = 5;
+
+const loginFailures = new Map<string, number[]>();
+
+/** True if `key` has hit the failed-attempt ceiling and should be blocked from trying again right now. */
+export function isLoginLocked(key: string): boolean {
+  const now = Date.now();
+  const recent = (loginFailures.get(key) || []).filter((t) => now - t < LOGIN_WINDOW_MS);
+  return recent.length >= LOGIN_MAX_ATTEMPTS;
+}
+
+/** Records one failed login attempt for `key`. */
+export function recordFailedLogin(key: string): void {
+  const now = Date.now();
+  const recent = (loginFailures.get(key) || []).filter((t) => now - t < LOGIN_WINDOW_MS);
+  recent.push(now);
+  loginFailures.set(key, recent);
+}
+
+/** Clears failed-attempt history for `key` -- call this on a successful login. */
+export function clearFailedLogins(key: string): void {
+  loginFailures.delete(key);
+}

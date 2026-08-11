@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSite } from "@/features/website/storage";
+import { listAllCustomerReviews } from "@/features/reviews/storage";
 import ContentEditor from "@/features/website/components/manage/ContentEditor";
 
 export default async function EditContentPage({
@@ -22,9 +23,11 @@ export default async function EditContentPage({
     );
   }
 
+  const reviews = await listAllCustomerReviews(slug);
+
   return (
     <main className="min-h-screen p-6 sm:p-10">
-      <ContentEditor slug={slug} initialWebsite={site.website} />
+      <ContentEditor slug={slug} initialWebsite={site.website} initialReviews={reviews} />
     </main>
   );
 }

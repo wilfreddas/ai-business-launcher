@@ -13,9 +13,9 @@
 
 import "server-only";
 import { cache } from "react";
-import { Redis } from "@upstash/redis";
 import type { Business } from "@/features/businesses/types";
 import type { WebsiteContent } from "@/features/generation/types";
+import { getRedis } from "@/lib/redis";
 
 export type ClientStatus = "lead" | "in_progress" | "live";
 
@@ -36,25 +36,6 @@ const INDEX_KEY = "sites:index";
 
 // In-memory fallback, used only when Redis isn't configured.
 const memorySites = new Map<string, SavedSite>();
-let warnedAboutMemoryFallback = false;
-
-function getRedis(): Redis | null {
-  const url = process.env.KV_REST_API_URL;
-  const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) {
-    if (!warnedAboutMemoryFallback) {
-      warnedAboutMemoryFallback = true;
-      console.warn(
-        "⚠️  KV_REST_API_URL/KV_REST_API_TOKEN not set — using in-memory site storage. " +
-          "Sites won't survive a server restart, and in dev this Map isn't guaranteed to be " +
-          "shared across every route (e.g. a Server Component render vs. an API route handler) " +
-          "depending on how Next bundles them. Set up Upstash Redis for reliable behavior."
-      );
-    }
-    return null;
-  }
-  return new Redis({ url, token });
-}
 
 function slugify(name: string): string {
   return (
