@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 import { GalleryItem } from "@/features/generation/types";
-import { headingStyle, sectionHeadingClass, cardClass } from "../theme";
+import { headingStyle, cardClass } from "../theme";
 import { stockPhotoUrl } from "../stockPhoto";
+import SectionHeading from "./SectionHeading";
 
 interface Props {
   gallery: GalleryItem[];
@@ -18,12 +19,7 @@ export default function GallerySection({ gallery }: Props) {
   return (
     <section id="gallery" className="bg-[var(--w-secondary)]/40 px-4 py-16 sm:py-24">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-          <h2 style={headingStyle} className={sectionHeadingClass}>
-            Gallery
-          </h2>
-          <p className="mt-3 text-base text-[var(--w-text)]/70">A look at our work.</p>
-        </div>
+        <SectionHeading heading="Gallery" subheading="A look at our work." />
 
         <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
           {gallery.map((item, idx) => (

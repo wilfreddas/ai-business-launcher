@@ -2,7 +2,8 @@
 
 import { Star } from "lucide-react";
 import { ReviewItem } from "@/features/generation/types";
-import { headingStyle, sectionHeadingClass, cardClass } from "../theme";
+import { headingStyle, cardClass } from "../theme";
+import SectionHeading from "./SectionHeading";
 
 interface Props {
   reviews: ReviewItem[];
@@ -23,11 +24,7 @@ export default function ReviewsSection({ reviews }: Props) {
   return (
     <section id="reviews" className="bg-[var(--w-secondary)]/40 px-4 py-16 sm:py-24">
       <div className="mx-auto max-w-5xl">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-          <h2 style={headingStyle} className={sectionHeadingClass}>
-            What Customers Say
-          </h2>
-        </div>
+        <SectionHeading heading="What Customers Say" />
 
         <div className="grid gap-5 sm:grid-cols-2">
           {reviews.map((review, idx) => (

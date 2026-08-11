@@ -2,7 +2,8 @@
 
 import { ChevronDown } from "lucide-react";
 import { FAQItem } from "@/features/generation/types";
-import { headingStyle, sectionHeadingClass, cardClass } from "../theme";
+import { headingStyle, cardClass } from "../theme";
+import SectionHeading from "./SectionHeading";
 
 interface Props {
   faq: FAQItem[];
@@ -14,11 +15,7 @@ export default function FAQSection({ faq }: Props) {
   return (
     <section id="faq" className="bg-[var(--w-secondary)]/30 px-4 py-16 sm:py-24">
       <div className="mx-auto max-w-3xl">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-          <h2 style={headingStyle} className={sectionHeadingClass}>
-            Frequently Asked Questions
-          </h2>
-        </div>
+        <SectionHeading heading="Frequently Asked Questions" />
 
         <div className="space-y-3">
           {faq.map((item, idx) => (

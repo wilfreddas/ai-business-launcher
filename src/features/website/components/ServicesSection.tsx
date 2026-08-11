@@ -1,8 +1,5 @@
-"use client";
-
 import { ServiceItem, WebsiteThemeSpec } from "@/features/generation/types";
-import { isRefinedStyle } from "../theme";
-import OfferingsGrid from "./OfferingsGrid";
+import OfferingsSection from "./OfferingsSection";
 
 interface Props {
   services: ServiceItem[];
@@ -11,13 +8,12 @@ interface Props {
 
 export default function ServicesSection({ services, style }: Props) {
   return (
-    <section id="services" className="bg-[var(--w-bg)] px-4 py-16 sm:py-24">
-      <OfferingsGrid
-        items={services}
-        heading="Our Services"
-        subheading="What we can do for you."
-        variant={isRefinedStyle(style) ? "list" : "grid"}
-      />
-    </section>
+    <OfferingsSection
+      id="services"
+      services={services}
+      style={style}
+      heading="Our Services"
+      subheading="What we can do for you."
+    />
   );
 }

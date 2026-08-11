@@ -27,6 +27,18 @@ export const SECTION_LABELS: Partial<Record<SectionName, string>> = {
  * canonically appear if all were enabled. "hero" and "contact" aren't
  * included -- every site always has them, so they're not toggle-able.
  */
+/**
+ * Filters out non-linkable sections (hero, and anything without a label)
+ * and maps the rest to {id, label} pairs for a navbar. Shared by the live
+ * Navbar and the static-export NavbarExport, which previously duplicated
+ * this exact filter/map.
+ */
+export function buildNavLinks(sections: SectionName[]): { id: SectionName; label: string }[] {
+  return sections
+    .filter((s) => s !== "hero" && SECTION_LABELS[s])
+    .map((s) => ({ id: s, label: SECTION_LABELS[s]! }));
+}
+
 export const TOGGLEABLE_SECTIONS: SectionName[] = [
   "stats",
   "menu",
