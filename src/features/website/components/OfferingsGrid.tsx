@@ -1,7 +1,8 @@
 "use client";
 
 import { ServiceItem } from "@/features/generation/types";
-import { headingStyle, sectionHeadingClass, cardClass, badgeClass } from "../theme";
+import { headingStyle, badgeClass, hoverCardClass } from "../theme";
+import SectionHeading from "./SectionHeading";
 
 interface Props {
   items: ServiceItem[];
@@ -20,12 +21,7 @@ export default function OfferingsGrid({ items, heading, subheading, variant = "g
   if (variant === "list") {
     return (
       <div className="mx-auto max-w-3xl px-4">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-          <h2 style={headingStyle} className={sectionHeadingClass}>
-            {heading}
-          </h2>
-          {subheading && <p className="mt-3 text-base text-[var(--w-text)]/70">{subheading}</p>}
-        </div>
+        <SectionHeading heading={heading} subheading={subheading} />
 
         <div className="divide-y divide-[var(--w-text)]/10 border-y border-[var(--w-text)]/10">
           {items.map((item, idx) => (
@@ -55,19 +51,11 @@ export default function OfferingsGrid({ items, heading, subheading, variant = "g
 
   return (
     <div className="mx-auto max-w-6xl px-4">
-      <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-        <h2 style={headingStyle} className={sectionHeadingClass}>
-          {heading}
-        </h2>
-        {subheading && <p className="mt-3 text-base text-[var(--w-text)]/70">{subheading}</p>}
-      </div>
+      <SectionHeading heading={heading} subheading={subheading} />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, idx) => (
-          <div
-            key={idx}
-            className={`${cardClass} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg`}
-          >
+          <div key={idx} className={hoverCardClass}>
             <div className="flex items-start justify-between gap-3">
               <h3 style={headingStyle} className="text-lg font-semibold">
                 {item.name}

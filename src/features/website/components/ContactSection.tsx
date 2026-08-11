@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { Phone, Mail, MapPin, CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { BusinessInfo } from "@/features/generation/types";
-import { headingStyle, sectionHeadingClass, primaryButtonClass } from "../theme";
-import { formatPhoneDisplay, phoneHref } from "@/lib/format";
+import { headingStyle, sectionHeadingClass, primaryButtonClass, formInputClass } from "../theme";
+import ContactInfoList from "./ContactInfoList";
 
 interface Props {
   businessInfo: BusinessInfo;
@@ -44,38 +44,7 @@ export default function ContactSection({ businessInfo }: Props) {
 
         <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-14">
           {/* Contact Info */}
-          <div className="space-y-5">
-            <p className="text-base leading-relaxed text-[var(--w-text)]/75">
-              {businessInfo.description}
-            </p>
-
-            <div className="space-y-3 text-sm">
-              {businessInfo.phone && (
-                <a
-                  href={`tel:${phoneHref(businessInfo.phone)}`}
-                  className="flex items-center gap-2.5 font-medium hover:text-[var(--w-primary)]"
-                >
-                  <Phone className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {formatPhoneDisplay(businessInfo.phone)}
-                </a>
-              )}
-              {businessInfo.email && (
-                <a
-                  href={`mailto:${businessInfo.email}`}
-                  className="flex items-center gap-2.5 font-medium hover:text-[var(--w-primary)]"
-                >
-                  <Mail className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {businessInfo.email}
-                </a>
-              )}
-              {businessInfo.address && (
-                <p className="flex items-center gap-2.5 font-medium">
-                  <MapPin className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {businessInfo.address}
-                </p>
-              )}
-            </div>
-          </div>
+          <ContactInfoList businessInfo={businessInfo} />
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -85,7 +54,7 @@ export default function ContactSection({ businessInfo }: Props) {
               placeholder="Your Name"
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full rounded-[var(--w-radius)] border border-black/10 px-4 py-3 text-sm focus:border-[var(--w-primary)] focus:outline-none"
+              className={formInputClass}
             />
             <input
               type="email"
@@ -93,7 +62,7 @@ export default function ContactSection({ businessInfo }: Props) {
               placeholder="Your Email"
               value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              className="w-full rounded-[var(--w-radius)] border border-black/10 px-4 py-3 text-sm focus:border-[var(--w-primary)] focus:outline-none"
+              className={formInputClass}
             />
             <textarea
               required
@@ -101,7 +70,7 @@ export default function ContactSection({ businessInfo }: Props) {
               rows={4}
               value={form.message}
               onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-              className="w-full rounded-[var(--w-radius)] border border-black/10 px-4 py-3 text-sm focus:border-[var(--w-primary)] focus:outline-none"
+              className={formInputClass}
             />
 
             <button

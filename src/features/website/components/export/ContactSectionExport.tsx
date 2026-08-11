@@ -1,7 +1,6 @@
-import { Phone, Mail, MapPin } from "lucide-react";
 import { BusinessInfo } from "@/features/generation/types";
 import { headingStyle, sectionHeadingClass, primaryButtonClass } from "../../theme";
-import { formatPhoneDisplay, phoneHref } from "@/lib/format";
+import ContactInfoList from "../ContactInfoList";
 
 interface Props {
   businessInfo: BusinessInfo;
@@ -22,32 +21,7 @@ export default function ContactSectionExport({ businessInfo }: Props) {
         </h2>
 
         <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-14">
-          <div className="space-y-5">
-            <p className="text-base leading-relaxed text-[var(--w-text)]/75">
-              {businessInfo.description}
-            </p>
-
-            <div className="space-y-3 text-sm">
-              {businessInfo.phone && (
-                <a href={`tel:${phoneHref(businessInfo.phone)}`} className="flex items-center gap-2.5 font-medium hover:text-[var(--w-primary)]">
-                  <Phone className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {formatPhoneDisplay(businessInfo.phone)}
-                </a>
-              )}
-              {businessInfo.email && (
-                <a href={`mailto:${businessInfo.email}`} className="flex items-center gap-2.5 font-medium hover:text-[var(--w-primary)]">
-                  <Mail className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {businessInfo.email}
-                </a>
-              )}
-              {businessInfo.address && (
-                <p className="flex items-center gap-2.5 font-medium">
-                  <MapPin className="h-4 w-4 shrink-0 text-[var(--w-primary)]" />
-                  {businessInfo.address}
-                </p>
-              )}
-            </div>
-          </div>
+          <ContactInfoList businessInfo={businessInfo} />
 
           <form
             action={businessInfo.email ? `mailto:${businessInfo.email}` : undefined}

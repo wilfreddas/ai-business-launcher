@@ -91,3 +91,10 @@ export const badgeClass =
 
 /** Section heading, colored + industry font. */
 export const sectionHeadingClass = "text-3xl md:text-4xl font-bold tracking-tight";
+
+/** Card + the hover-lift treatment used by grid-style offering/feature cards. */
+export const hoverCardClass = `${cardClass} transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg`;
+
+/** Text input/textarea styling shared by the live and exported contact forms. */
+export const formInputClass =
+  "w-full rounded-[var(--w-radius)] border border-black/10 px-4 py-3 text-sm focus:border-[var(--w-primary)] focus:outline-none";

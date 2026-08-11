@@ -2,13 +2,8 @@
 
 import { Check } from "lucide-react";
 import { PricingTier } from "@/features/generation/types";
-import {
-  headingStyle,
-  sectionHeadingClass,
-  cardClass,
-  primaryButtonClass,
-  outlineButtonClass,
-} from "../theme";
+import { headingStyle, cardClass, primaryButtonClass, outlineButtonClass } from "../theme";
+import SectionHeading from "./SectionHeading";
 
 interface Props {
   tiers: PricingTier[];
@@ -23,14 +18,10 @@ export default function PricingSection({ tiers }: Props) {
   return (
     <section id="pricing" className="bg-[var(--w-bg)] px-4 py-16 sm:py-24">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
-          <h2 style={headingStyle} className={sectionHeadingClass}>
-            Simple, Honest Pricing
-          </h2>
-          <p className="mt-3 text-base text-[var(--w-text)]/70">
-            Reach out for a quote tailored to your needs.
-          </p>
-        </div>
+        <SectionHeading
+          heading="Simple, Honest Pricing"
+          subheading="Reach out for a quote tailored to your needs."
+        />
 
         <div className="grid gap-6 lg:grid-cols-3">
           {tiers.map((tier, idx) => (

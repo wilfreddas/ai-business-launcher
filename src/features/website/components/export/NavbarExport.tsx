@@ -1,7 +1,7 @@
 import { Menu } from "lucide-react";
 import type { SectionName, BusinessInfo } from "@/features/generation/types";
 import { headingStyle } from "../../theme";
-import { SECTION_LABELS } from "../../sectionMeta";
+import { buildNavLinks } from "../../sectionMeta";
 import CTAButton from "../CTAButton";
 
 interface Props {
@@ -16,9 +16,7 @@ interface Props {
  * works with zero JavaScript once this leaves the app.
  */
 export default function NavbarExport({ businessName, sections, businessInfo }: Props) {
-  const links = sections
-    .filter((s) => s !== "hero" && SECTION_LABELS[s])
-    .map((s) => ({ id: s, label: SECTION_LABELS[s]! }));
+  const links = buildNavLinks(sections);
 
   return (
     <nav className="sticky top-0 z-40 border-b border-black/5 bg-[var(--w-bg)]/95">

@@ -1,11 +1,10 @@
 "use client";
 
-import { Phone } from "lucide-react";
 import { HeroContent, BusinessInfo, WebsiteThemeSpec } from "@/features/generation/types";
-import { headingStyle, outlineButtonClass, isRefinedStyle } from "../theme";
+import { headingStyle, isRefinedStyle } from "../theme";
 import { stockPhotoUrl } from "../stockPhoto";
-import { formatPhoneDisplay, phoneHref } from "@/lib/format";
-import CTAButton from "./CTAButton";
+import HeroBadgeRow from "./HeroBadgeRow";
+import HeroCTAGroup from "./HeroCTAGroup";
 
 interface Props {
   hero: HeroContent;
@@ -58,18 +57,7 @@ function PhotoBackdropHero({ hero, businessInfo }: Omit<Props, "style">) {
       />
 
       <div className="relative mx-auto max-w-4xl text-center">
-        <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
-          {hero.badge && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
-              {hero.badge}
-            </span>
-          )}
-          {businessInfo.emergencyAvailable && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide backdrop-blur-sm">
-              24/7 Emergency Service
-            </span>
-          )}
-        </div>
+        <HeroBadgeRow hero={hero} businessInfo={businessInfo} tone="dark" />
 
         <h1
           style={headingStyle}
@@ -82,23 +70,10 @@ function PhotoBackdropHero({ hero, businessInfo }: Omit<Props, "style">) {
           {hero.subheading}
         </p>
 
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <CTAButton
-            businessInfo={businessInfo}
-            variant="primary"
-            className="w-full !bg-white !text-[var(--w-primary)] sm:w-auto"
-          />
-
-          {businessInfo.phone && businessInfo.ctaType !== "call" && (
-            <a
-              href={`tel:${phoneHref(businessInfo.phone)}`}
-              className={`w-full sm:w-auto ${outlineButtonClass}`}
-            >
-              <Phone className="h-4 w-4" />
-              {formatPhoneDisplay(businessInfo.phone)}
-            </a>
-          )}
-        </div>
+        <HeroCTAGroup
+          businessInfo={businessInfo}
+          primaryClassName="w-full !bg-white !text-[var(--w-primary)] sm:w-auto"
+        />
       </div>
     </section>
   );
@@ -110,24 +85,7 @@ function SplitHero({ hero, businessInfo }: Omit<Props, "style">) {
     <section id="hero" className="relative overflow-hidden bg-[var(--w-bg)] px-4 py-20 sm:py-28 md:py-32">
       <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 md:gap-16">
         <div className="text-center md:text-left">
-          <div className="mb-5 flex flex-wrap items-center justify-center gap-2 md:justify-start">
-            {hero.badge && (
-              <span
-                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
-                style={{ backgroundColor: "var(--w-secondary)", color: "var(--w-primary)" }}
-              >
-                {hero.badge}
-              </span>
-            )}
-            {businessInfo.emergencyAvailable && (
-              <span
-                className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide"
-                style={{ backgroundColor: "var(--w-secondary)", color: "var(--w-primary)" }}
-              >
-                24/7 Emergency Service
-              </span>
-            )}
-          </div>
+          <HeroBadgeRow hero={hero} businessInfo={businessInfo} tone="light" justify="start" />
 
           <h1
             style={headingStyle}
@@ -140,19 +98,7 @@ function SplitHero({ hero, businessInfo }: Omit<Props, "style">) {
             {hero.subheading}
           </p>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row md:justify-start">
-            <CTAButton businessInfo={businessInfo} variant="primary" className="w-full sm:w-auto" />
-
-            {businessInfo.phone && businessInfo.ctaType !== "call" && (
-              <a
-                href={`tel:${phoneHref(businessInfo.phone)}`}
-                className={`w-full sm:w-auto ${outlineButtonClass}`}
-              >
-                <Phone className="h-4 w-4" />
-                {formatPhoneDisplay(businessInfo.phone)}
-              </a>
-            )}
-          </div>
+          <HeroCTAGroup businessInfo={businessInfo} justify="start" />
         </div>
 
         <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--w-radius)] shadow-xl">
