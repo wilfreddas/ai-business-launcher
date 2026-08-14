@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CalendarClock, Users } from "lucide-react";
 import { signUpAction, logInAction } from "../actions";
 import type { AccountRole } from "../types";
 
@@ -27,15 +28,23 @@ export default function AccountAuthForm({ slug, role, mode, error, businessName 
   const basePath = role === "client" ? `/site/${slug}/portal` : `/site/${slug}/account`;
   const roleLabel = role === "client" ? "Business" : "Customer";
 
+  const Icon = role === "client" ? Users : CalendarClock;
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-6">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-50 px-4 py-12 sm:px-6">
       <Link href={`/site/${slug}`} className="text-sm font-medium text-gray-500 hover:text-gray-900">
         ← Back to {businessName}
       </Link>
 
-      <form action={action} className="w-full max-w-sm space-y-4 rounded-xl border border-gray-200 p-8 shadow-sm">
-        <div>
-          <h1 className="text-xl font-bold">
+      <form
+        action={action}
+        className="w-full max-w-sm space-y-5 rounded-2xl border border-gray-200 bg-white p-8 shadow-lg shadow-gray-200/50"
+      >
+        <div className="flex flex-col items-center text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white">
+            <Icon className="h-5 w-5" />
+          </span>
+          <h1 className="mt-4 text-xl font-bold">
             {roleLabel} {isSignup ? "sign up" : "login"}
           </h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -45,25 +54,34 @@ export default function AccountAuthForm({ slug, role, mode, error, businessName 
           </p>
         </div>
 
-        {isSignup && (
-          <input type="text" name="name" required autoFocus placeholder="Your name" className="w-full rounded-lg border p-3" />
-        )}
-        <input
-          type="email"
-          name="email"
-          required
-          autoFocus={!isSignup}
-          placeholder="Email"
-          className="w-full rounded-lg border p-3"
-        />
-        <input
-          type="password"
-          name="password"
-          required
-          minLength={isSignup ? 8 : undefined}
-          placeholder={isSignup ? "Password (8+ characters)" : "Password"}
-          className="w-full rounded-lg border p-3"
-        />
+        <div className="space-y-3">
+          {isSignup && (
+            <input
+              type="text"
+              name="name"
+              required
+              autoFocus
+              placeholder="Your name"
+              className="w-full rounded-lg border border-gray-200 p-3 text-sm outline-none transition-colors focus:border-gray-900"
+            />
+          )}
+          <input
+            type="email"
+            name="email"
+            required
+            autoFocus={!isSignup}
+            placeholder="Email"
+            className="w-full rounded-lg border border-gray-200 p-3 text-sm outline-none transition-colors focus:border-gray-900"
+          />
+          <input
+            type="password"
+            name="password"
+            required
+            minLength={isSignup ? 8 : undefined}
+            placeholder={isSignup ? "Password (8+ characters)" : "Password"}
+            className="w-full rounded-lg border border-gray-200 p-3 text-sm outline-none transition-colors focus:border-gray-900"
+          />
+        </div>
 
         {error && <p className="text-sm font-medium text-red-600">{ERROR_MESSAGES[error] || "Something went wrong."}</p>}
 

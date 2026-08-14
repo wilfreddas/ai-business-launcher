@@ -6,18 +6,19 @@ interface Props<T extends string> {
   onChange: (id: T) => void;
 }
 
-/** Small underline-style tab bar, shared by both the client and customer
- * scheduling dashboards. */
+/** Pill-segmented tab bar, shared by both the client and customer
+ * scheduling dashboards. Full-width on mobile so each tab is a comfortable
+ * tap target instead of cramped underline text. */
 export default function TabBar<T extends string>({ tabs, active, onChange }: Props<T>) {
   return (
-    <div className="flex gap-1 border-b border-gray-200">
+    <div className="flex gap-1 rounded-xl bg-gray-100 p-1">
       {tabs.map((t) => (
         <button
           key={t.id}
           type="button"
           onClick={() => onChange(t.id)}
-          className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
-            active === t.id ? "border-black text-black" : "border-transparent text-gray-500 hover:text-gray-900"
+          className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            active === t.id ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-900"
           }`}
         >
           {t.label}

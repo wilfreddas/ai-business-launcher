@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, X } from "lucide-react";
+import { Calendar, Check, X } from "lucide-react";
 import type { AppointmentRequest, AppointmentStatus } from "../types";
 import { relativeDay } from "../dateUtils";
 
@@ -43,7 +43,12 @@ export default function AppointmentModeration({
   showProvider,
 }: Props) {
   if (appointments.length === 0) {
-    return <p className="text-sm text-gray-500">{emptyMessage}</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-gray-200 py-10 text-center">
+        <Calendar className="h-5 w-5 text-gray-300" />
+        <p className="text-sm text-gray-500">{emptyMessage}</p>
+      </div>
+    );
   }
 
   return (
@@ -51,7 +56,10 @@ export default function AppointmentModeration({
       {appointments.map((a) => {
         const relative = relativeDay(a.requestedDate);
         return (
-          <div key={a.id} className="rounded-lg border border-gray-200 p-4">
+          <div
+            key={a.id}
+            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+          >
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
