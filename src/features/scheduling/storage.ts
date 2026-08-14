@@ -26,7 +26,8 @@ async function writeAll(slug: string, appointments: AppointmentRequest[]): Promi
   }
 }
 
-/** Every request for a site -- what the client (business owner) sees. */
+/** Every request for a site, across all providers -- what the business
+ * owner (the first client account created) sees. */
 export async function listAppointments(slug: string): Promise<AppointmentRequest[]> {
   return readAll(slug);
 }
@@ -40,15 +41,40 @@ export async function listAppointmentsForCustomer(
   return all.filter((a) => a.customerId === customerId);
 }
 
+/** Just one provider's (staff account's) own requests -- what a non-owner
+ * client account sees. */
+export async function listAppointmentsForProvider(
+  slug: string,
+  providerId: string
+): Promise<AppointmentRequest[]> {
+  const all = await readAll(slug);
+  return all.filter((a) => a.providerId === providerId);
+}
+
+export async function getAppointment(slug: string, id: string): Promise<AppointmentRequest | null> {
+  const all = await readAll(slug);
+  return all.find((a) => a.id === id) ?? null;
+}
+
 export async function createAppointment(
   slug: string,
-  input: { customerId: string; customerName: string; requestedDate: string; requestedTime: string; note?: string }
+  input: {
+    customerId: string;
+    customerName: string;
+    providerId: string;
+    providerName: string;
+    requestedDate: string;
+    requestedTime: string;
+    note?: string;
+  }
 ): Promise<AppointmentRequest> {
   const appointment: AppointmentRequest = {
     id: randomUUID(),
     slug,
     customerId: input.customerId,
     customerName: input.customerName,
+    providerId: input.providerId,
+    providerName: input.providerName,
     requestedDate: input.requestedDate,
     requestedTime: input.requestedTime,
     note: input.note,
