@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { hashPassword, verifyPassword } from "@/lib/auth/passwords";
 import { isRateLimited } from "@/lib/rateLimit";
 import { ACCOUNT_COOKIE, buildAccountCookieValue } from "./auth";
-import { createAccount, findAccountByEmail, listAccounts } from "./storage";
+import { createAccount, findAccountByEmail } from "./storage";
 import type { AccountRole } from "./types";
 
 async function getClientIp(): Promise<string> {
@@ -40,11 +40,6 @@ export async function signUpAction(slug: string, role: AccountRole, formData: Fo
 
   if (!name || !email || !password || password.length < 8) {
     redirect(`${loginPath}?error=invalid&mode=signup`);
-  }
-
-  // Only one client account per site -- the business owner, not a shared pool.
-  if (role === "client" && (await listAccounts(slug, "client")).length > 0) {
-    redirect(`${loginPath}?error=exists&mode=signup`);
   }
 
   const existing = await findAccountByEmail(slug, role, email);

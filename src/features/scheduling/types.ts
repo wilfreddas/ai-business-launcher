@@ -13,6 +13,10 @@ export interface AppointmentRequest {
   slug: string;
   customerId: string;
   customerName: string;
+  /** Which client (business/staff) account this request is for -- lets a
+   * site with multiple staff accounts each see only their own requests. */
+  providerId: string;
+  providerName: string;
   requestedDate: string;
   requestedTime: string;
   note?: string;

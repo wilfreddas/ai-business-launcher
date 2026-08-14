@@ -57,6 +57,23 @@ export async function listAccounts(slug: string, role: AccountRole): Promise<Sit
   return readAll(slug, role);
 }
 
+/** Public info only (no password hash) -- for the customer-side provider
+ * picker on the appointment request form. */
+export async function listProviderOptions(slug: string): Promise<{ id: string; name: string }[]> {
+  const accounts = await readAll(slug, "client");
+  return accounts.map((a) => ({ id: a.id, name: a.name }));
+}
+
+/** The first client account created for a site is treated as the business
+ * owner: they see every provider's appointments, while every other client
+ * account (staff) only sees their own. Order of the stored list is creation
+ * order (createAccount always appends), so no separate "owner" flag is
+ * needed to answer this. */
+export async function getOwnerAccountId(slug: string): Promise<string | null> {
+  const accounts = await readAll(slug, "client");
+  return accounts[0]?.id ?? null;
+}
+
 export async function createAccount(
   slug: string,
   role: AccountRole,

@@ -11,6 +11,10 @@ interface Props {
   onSetStatus?: (id: string, status: AppointmentStatus) => void;
   isPending?: boolean;
   emptyMessage?: string;
+  /** Show which provider each appointment is with -- useful for the owner
+   * view (spans every staff account) and the customer's own list (may be
+   * booked with more than one provider at the same business). */
+  showProvider?: boolean;
 }
 
 const STATUS_STYLE: Record<AppointmentStatus, string> = {
@@ -36,6 +40,7 @@ export default function AppointmentModeration({
   onSetStatus,
   isPending,
   emptyMessage = "No appointments.",
+  showProvider,
 }: Props) {
   if (appointments.length === 0) {
     return <p className="text-sm text-gray-500">{emptyMessage}</p>;
@@ -47,8 +52,8 @@ export default function AppointmentModeration({
         const relative = relativeDay(a.requestedDate);
         return (
           <div key={a.id} className="rounded-lg border border-gray-200 p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-semibold">{a.customerName}</p>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[a.status]}`}>
@@ -60,12 +65,13 @@ export default function AppointmentModeration({
                 </div>
                 <p className="mt-1 text-sm text-gray-700">
                   {a.requestedDate} at {a.requestedTime}
+                  {showProvider && <span className="text-gray-400"> · with {a.providerName}</span>}
                 </p>
                 {a.note && <p className="mt-1 text-sm text-gray-500">{a.note}</p>}
               </div>
 
               {onSetStatus && a.status === "requested" && (
-                <div className="flex shrink-0 items-center gap-1.5">
+                <div className="flex items-center gap-1.5 sm:shrink-0">
                   <button
                     type="button"
                     disabled={isPending}
