@@ -30,6 +30,11 @@ export interface SavedSite {
   status?: ClientStatus;
   /** Free-text internal note, e.g. "waiting on logo" or "wants pricing removed". */
   notes?: string;
+  /** Opt-in paid add-ons -- off by default, toggled per site. See features/accounts + features/scheduling. */
+  addOns?: {
+    /** Adds a client (business owner) login and a customer login/booking flow to this site. */
+    scheduling?: boolean;
+  };
 }
 
 const INDEX_KEY = "sites:index";
@@ -176,6 +181,26 @@ export async function updateSiteTracking(
   if (!existing) return null;
 
   const site: SavedSite = { ...existing, ...patch };
+
+  if (redis) {
+    await redis.set(`site:${slug}`, site);
+  } else {
+    memorySites.set(slug, site);
+  }
+
+  return site;
+}
+
+/** Toggles opt-in add-ons (currently just scheduling) -- no AI, no content change. */
+export async function updateSiteAddOns(
+  slug: string,
+  addOns: SavedSite["addOns"]
+): Promise<SavedSite | null> {
+  const redis = getRedis();
+  const existing = redis ? await redis.get<SavedSite>(`site:${slug}`) : memorySites.get(slug);
+  if (!existing) return null;
+
+  const site: SavedSite = { ...existing, addOns };
 
   if (redis) {
     await redis.set(`site:${slug}`, site);

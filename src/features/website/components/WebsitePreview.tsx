@@ -29,6 +29,8 @@ interface Props {
   /** Real, approved customer reviews -- fetched server-side by the page,
    * not part of WebsiteContent (see features/reviews). */
   reviews: CustomerReview[];
+  /** Scheduling add-on -- see features/accounts + features/scheduling. Off by default. */
+  schedulingEnabled?: boolean;
 }
 
 /**
@@ -40,7 +42,7 @@ interface Props {
  * deliberately not rendered here -- it's a candidate paid add-on feature
  * rather than something every site gets by default.
  */
-export default function WebsitePreview({ website, slug, reviews }: Props) {
+export default function WebsitePreview({ website, slug, reviews, schedulingEnabled }: Props) {
   const sections = (website.sections?.length
     ? website.sections
     : ["hero", "services", "reviews", "contact"]) as SectionName[];
@@ -99,7 +101,12 @@ export default function WebsitePreview({ website, slug, reviews }: Props) {
         )}
       </main>
 
-      <Footer businessName={website.title} businessInfo={website.businessInfo} slug={slug} />
+      <Footer
+        businessName={website.title}
+        businessInfo={website.businessInfo}
+        slug={slug}
+        schedulingEnabled={schedulingEnabled}
+      />
 
       <ScrollToTopButton className="bg-[var(--w-primary)] text-white" />
     </div>

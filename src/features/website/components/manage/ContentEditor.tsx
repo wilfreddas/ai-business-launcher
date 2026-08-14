@@ -16,12 +16,14 @@ import type {
   BusinessInfo,
 } from "@/features/generation/types";
 import type { CustomerReview } from "@/features/reviews/types";
+import type { SavedSite } from "../../storage";
 import { updateSiteContentAction } from "../../actions";
 import SectionToggle from "./SectionToggle";
 import EditableFields from "./EditableFields";
 import EditableList from "./EditableList";
 import EditorCard from "./EditorCard";
 import ReviewModeration from "./ReviewModeration";
+import AddOnsToggle from "./AddOnsToggle";
 import type { FieldSchema } from "./fieldTypes";
 
 // Field schemas live here, next to the one place they're used. Adding
@@ -115,10 +117,12 @@ export default function ContentEditor({
   slug,
   initialWebsite,
   initialReviews,
+  initialAddOns,
 }: {
   slug: string;
   initialWebsite: WebsiteContent;
   initialReviews: CustomerReview[];
+  initialAddOns: SavedSite["addOns"];
 }) {
   const [website, setWebsite] = useState<WebsiteContent>(initialWebsite);
   const [isPending, startTransition] = useTransition();
@@ -171,6 +175,10 @@ export default function ContentEditor({
           sections={website.sections as SectionName[]}
           onChange={(sections) => update("sections", sections)}
         />
+      </EditorCard>
+
+      <EditorCard title="Add-Ons">
+        <AddOnsToggle slug={slug} initialAddOns={initialAddOns} />
       </EditorCard>
 
       <EditorCard title="Hero">

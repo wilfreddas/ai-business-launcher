@@ -69,7 +69,12 @@ export default async function SitePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <WebsitePreview website={site.website} slug={slug} reviews={reviews} />
+      <WebsitePreview
+        website={site.website}
+        slug={slug}
+        reviews={reviews}
+        schedulingEnabled={site.addOns?.scheduling}
+      />
     </>
   );
 }
