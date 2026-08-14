@@ -3,7 +3,7 @@ import { getSite } from "@/features/website/storage";
 import { getAccountSession } from "@/features/accounts/auth";
 import { logOutAction } from "@/features/accounts/actions";
 import { listAppointments } from "@/features/scheduling/storage";
-import AppointmentModeration from "@/features/scheduling/components/AppointmentModeration";
+import PortalDashboard from "@/features/scheduling/components/PortalDashboard";
 
 export default async function ClientPortalPage({
   params,
@@ -21,7 +21,7 @@ export default async function ClientPortalPage({
   const logout = logOutAction.bind(null, slug, "client");
 
   return (
-    <main className="mx-auto max-w-2xl p-6 sm:p-10">
+    <main className="mx-auto max-w-3xl p-6 sm:p-10">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Appointment Requests</h1>
@@ -37,7 +37,7 @@ export default async function ClientPortalPage({
       </div>
 
       <div className="mt-8">
-        <AppointmentModeration slug={slug} initialAppointments={appointments} />
+        <PortalDashboard slug={slug} initialAppointments={appointments} />
       </div>
     </main>
   );
