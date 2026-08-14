@@ -15,9 +15,11 @@ interface Props {
    * resolve once a client hosts the downloaded HTML file somewhere else.
    */
   slug?: string;
+  /** Scheduling add-on -- see features/accounts + features/scheduling. Off by default. */
+  schedulingEnabled?: boolean;
 }
 
-export default function Footer({ businessName, businessInfo, slug }: Props) {
+export default function Footer({ businessName, businessInfo, slug, schedulingEnabled }: Props) {
   return (
     <footer className="border-t border-black/5 bg-[var(--w-bg)] px-4 py-10 text-sm">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
@@ -55,6 +57,16 @@ export default function Footer({ businessName, businessInfo, slug }: Props) {
           <Link href={`/site/${slug}/privacy`} className="underline hover:text-[var(--w-text)]/80">
             Privacy Policy
           </Link>
+        )}
+        {slug && schedulingEnabled && (
+          <>
+            <Link href={`/site/${slug}/account/login`} className="underline hover:text-[var(--w-text)]/80">
+              Customer Login
+            </Link>
+            <Link href={`/site/${slug}/portal/login`} className="underline hover:text-[var(--w-text)]/80">
+              Business Login
+            </Link>
+          </>
         )}
       </p>
     </footer>

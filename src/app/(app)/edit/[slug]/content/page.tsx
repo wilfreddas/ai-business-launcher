@@ -27,7 +27,12 @@ export default async function EditContentPage({
 
   return (
     <main className="min-h-screen p-6 sm:p-10">
-      <ContentEditor slug={slug} initialWebsite={site.website} initialReviews={reviews} />
+      <ContentEditor
+        slug={slug}
+        initialWebsite={site.website}
+        initialReviews={reviews}
+        initialAddOns={site.addOns}
+      />
     </main>
   );
 }

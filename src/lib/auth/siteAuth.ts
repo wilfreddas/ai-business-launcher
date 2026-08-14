@@ -8,37 +8,9 @@
 // session store, so there's no database involved for 2-3 people.
 
 import { getAuthUsers, type AuthUser } from "./users";
+import { sign } from "./cookieSigning";
 
 export const SITE_AUTH_COOKIE = "site_auth";
-
-function toHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-function signingSecret(): string {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) {
-    console.warn(
-      "⚠️  AUTH_SECRET not set — using an insecure fallback signing key. Set a real AUTH_SECRET before deploying to production."
-    );
-  }
-  return secret || "dev-only-insecure-fallback-secret";
-}
-
-async function sign(value: string): Promise<string> {
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(signingSecret()),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign("HMAC", key, enc.encode(value));
-  return toHex(signature);
-}
 
 /** Whether the login gate is active at all -- opt-in via AUTH_USERS. */
 export function isAuthGateEnabled(): boolean {

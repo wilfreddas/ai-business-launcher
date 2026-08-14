@@ -1,7 +1,7 @@
 "use server";
 
-import { deleteSite, duplicateSite, getSite, updateSite, updateSiteTracking } from "./storage";
-import type { ClientStatus } from "./storage";
+import { deleteSite, duplicateSite, getSite, updateSite, updateSiteTracking, updateSiteAddOns } from "./storage";
+import type { ClientStatus, SavedSite } from "./storage";
 import type { WebsiteContent } from "@/features/generation/types";
 
 export async function deleteSiteAction(slug: string): Promise<void> {
@@ -22,6 +22,14 @@ export async function updateSiteTrackingAction(
   patch: { status?: ClientStatus; notes?: string }
 ): Promise<void> {
   await updateSiteTracking(slug, patch);
+}
+
+/** Toggles opt-in add-ons (e.g. the scheduling demo) -- no AI, no content change. */
+export async function updateSiteAddOnsAction(
+  slug: string,
+  addOns: SavedSite["addOns"]
+): Promise<void> {
+  await updateSiteAddOns(slug, addOns);
 }
 
 /**
