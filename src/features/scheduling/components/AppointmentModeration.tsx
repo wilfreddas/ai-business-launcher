@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { Check, X } from "lucide-react";
 import type { AppointmentRequest, AppointmentStatus } from "../types";
-import { updateAppointmentStatusAction } from "../actions";
+import { relativeDay } from "../dateUtils";
 
 interface Props {
-  slug: string;
-  initialAppointments: AppointmentRequest[];
+  appointments: AppointmentRequest[];
+  /** Omit to render a read-only list (used on the customer side -- a
+   * patient can see their own requests but not confirm/decline them). */
+  onSetStatus?: (id: string, status: AppointmentStatus) => void;
+  isPending?: boolean;
+  emptyMessage?: string;
 }
 
 const STATUS_STYLE: Record<AppointmentStatus, string> = {
@@ -16,66 +19,77 @@ const STATUS_STYLE: Record<AppointmentStatus, string> = {
   declined: "bg-gray-100 text-gray-500",
 };
 
-/** Same approve/reject pattern as the review moderation panel -- these
- * requests aren't freely editable, just something to confirm or decline. */
-export default function AppointmentModeration({ slug, initialAppointments }: Props) {
-  const [appointments, setAppointments] = useState(initialAppointments);
-  const [isPending, startTransition] = useTransition();
+const RELATIVE_STYLE: Record<ReturnType<typeof relativeDay>, string> = {
+  past: "bg-gray-100 text-gray-500",
+  today: "bg-blue-100 text-blue-700",
+  upcoming: "bg-gray-50 text-gray-600",
+};
 
-  function setStatus(id: string, status: AppointmentStatus) {
-    startTransition(async () => {
-      await updateAppointmentStatusAction(slug, id, status);
-      setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
-    });
-  }
-
+/**
+ * Presentational appointment list -- no data fetching or local state of its
+ * own, so the same component renders the Today tab, a calendar day's
+ * appointments, and search results from a single shared state array owned
+ * by the dashboard that renders it (see PortalDashboard/CustomerDashboard).
+ */
+export default function AppointmentModeration({
+  appointments,
+  onSetStatus,
+  isPending,
+  emptyMessage = "No appointments.",
+}: Props) {
   if (appointments.length === 0) {
-    return <p className="text-sm text-gray-500">No appointment requests yet.</p>;
+    return <p className="text-sm text-gray-500">{emptyMessage}</p>;
   }
 
   return (
     <div className="space-y-3">
-      {appointments.map((a) => (
-        <div key={a.id} className="rounded-lg border border-gray-200 p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="font-semibold">{a.customerName}</p>
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[a.status]}`}>
-                  {a.status}
-                </span>
+      {appointments.map((a) => {
+        const relative = relativeDay(a.requestedDate);
+        return (
+          <div key={a.id} className="rounded-lg border border-gray-200 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold">{a.customerName}</p>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[a.status]}`}>
+                    {a.status}
+                  </span>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${RELATIVE_STYLE[relative]}`}>
+                    {relative === "today" ? "Today" : relative === "past" ? "Past" : "Upcoming"}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-gray-700">
+                  {a.requestedDate} at {a.requestedTime}
+                </p>
+                {a.note && <p className="mt-1 text-sm text-gray-500">{a.note}</p>}
               </div>
-              <p className="mt-1 text-sm text-gray-700">
-                {a.requestedDate} at {a.requestedTime}
-              </p>
-              {a.note && <p className="mt-1 text-sm text-gray-500">{a.note}</p>}
-            </div>
 
-            {a.status === "requested" && (
-              <div className="flex shrink-0 items-center gap-1.5">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => setStatus(a.id, "confirmed")}
-                  className="inline-flex items-center gap-1 rounded-lg bg-black px-2.5 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:opacity-60"
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  Confirm
-                </button>
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => setStatus(a.id, "declined")}
-                  className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  Decline
-                </button>
-              </div>
-            )}
+              {onSetStatus && a.status === "requested" && (
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => onSetStatus(a.id, "confirmed")}
+                    className="inline-flex items-center gap-1 rounded-lg bg-black px-2.5 py-1.5 text-xs font-medium text-white hover:bg-gray-800 disabled:opacity-60"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    Confirm
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => onSetStatus(a.id, "declined")}
+                    className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Decline
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
