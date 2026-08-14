@@ -1,11 +1,21 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { deleteSite, duplicateSite, getSite, updateSite, updateSiteTracking, updateSiteAddOns } from "./storage";
 import type { ClientStatus, SavedSite } from "./storage";
 import type { WebsiteContent } from "@/features/generation/types";
 
+// Every mutation below calls revalidatePath for whatever pages read that
+// data. Without it, Next's Full Route Cache keeps serving the pre-edit
+// version of a page on refresh -- the write to storage succeeds, but
+// nothing tells Next the cached render is now stale, so it looks like the
+// edit "didn't save" until something else happens to bust the cache (like a
+// redeploy). This was the actual cause behind the scheduling toggle
+// appearing to reset itself.
+
 export async function deleteSiteAction(slug: string): Promise<void> {
   await deleteSite(slug);
+  revalidatePath("/dashboard");
 }
 
 export async function duplicateSiteAction(slug: string): Promise<{ slug: string }> {
@@ -13,6 +23,7 @@ export async function duplicateSiteAction(slug: string): Promise<{ slug: string 
   if (!site) {
     throw new Error(`Site "${slug}" not found`);
   }
+  revalidatePath("/dashboard");
   return { slug: site.slug };
 }
 
@@ -22,6 +33,7 @@ export async function updateSiteTrackingAction(
   patch: { status?: ClientStatus; notes?: string }
 ): Promise<void> {
   await updateSiteTracking(slug, patch);
+  revalidatePath("/dashboard");
 }
 
 /** Toggles opt-in add-ons (e.g. the scheduling demo) -- no AI, no content change. */
@@ -30,6 +42,12 @@ export async function updateSiteAddOnsAction(
   addOns: SavedSite["addOns"]
 ): Promise<void> {
   await updateSiteAddOns(slug, addOns);
+  revalidatePath(`/edit/${slug}/content`);
+  revalidatePath(`/site/${slug}`);
+  revalidatePath(`/site/${slug}/portal`);
+  revalidatePath(`/site/${slug}/portal/login`);
+  revalidatePath(`/site/${slug}/account`);
+  revalidatePath(`/site/${slug}/account/login`);
 }
 
 /**
@@ -62,5 +80,8 @@ export async function updateSiteContentAction(
   };
 
   const saved = await updateSite(slug, business, website);
+  revalidatePath(`/site/${slug}`);
+  revalidatePath(`/edit/${slug}/content`);
+  revalidatePath("/dashboard");
   return { slug: saved.slug };
 }
