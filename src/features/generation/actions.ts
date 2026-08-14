@@ -13,6 +13,7 @@
 // result is reachable from any device, not just the browser that created
 // it, and returns just the slug -- the client never touches storage code.
 
+import { revalidatePath } from "next/cache";
 import type { Business } from "@/features/businesses/types";
 import { generateWebsite } from "./service";
 import { saveSite, updateSite } from "@/features/website/storage";
@@ -22,6 +23,7 @@ export async function generateWebsiteAction(
 ): Promise<{ slug: string }> {
   const website = await generateWebsite(business);
   const saved = await saveSite(business, website);
+  revalidatePath("/dashboard");
   return { slug: saved.slug };
 }
 
@@ -34,5 +36,8 @@ export async function updateWebsiteAction(
 ): Promise<{ slug: string }> {
   const website = await generateWebsite(business);
   const saved = await updateSite(slug, business, website);
+  revalidatePath(`/site/${slug}`);
+  revalidatePath(`/edit/${slug}/content`);
+  revalidatePath("/dashboard");
   return { slug: saved.slug };
 }
