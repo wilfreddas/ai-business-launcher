@@ -93,8 +93,30 @@ export default function AppointmentDashboard({ slug, appointments: initial, role
 
   const tabs = role === "business" ? BUSINESS_TABS : CUSTOMER_TABS;
 
+  const pendingCount = useMemo(() => appointments.filter((a) => a.status === "requested").length, [appointments]);
+  const stats: { label: string; value: number }[] =
+    role === "business"
+      ? [
+          { label: "Today", value: todaysAppointments.length },
+          { label: "Pending", value: pendingCount },
+          { label: "Upcoming", value: upcoming.length },
+        ]
+      : [
+          { label: "Upcoming", value: upcoming.length },
+          { label: "Past", value: past.length },
+        ];
+
   return (
     <div>
+      <div className="mb-6 flex gap-2">
+        {stats.map((s) => (
+          <div key={s.label} className="flex-1 rounded-xl border border-gray-200 bg-white p-4 text-center shadow-sm">
+            <p className="text-2xl font-bold">{s.value}</p>
+            <p className="mt-0.5 text-xs font-medium text-gray-500">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
 
       <div className="mt-6 space-y-8">
@@ -146,7 +168,7 @@ export default function AppointmentDashboard({ slug, appointments: initial, role
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by patient/customer name"
-                className="w-full rounded-lg border p-3 pl-9 text-sm"
+                className="w-full rounded-lg border border-gray-200 p-3 pl-9 text-sm outline-none transition-colors focus:border-gray-900"
               />
             </div>
             <div className="mt-4">

@@ -4,6 +4,7 @@ import { getAccountSession } from "@/features/accounts/auth";
 import { logOutAction } from "@/features/accounts/actions";
 import { listAppointmentsForCustomer } from "@/features/scheduling/storage";
 import { listProviderOptions } from "@/features/accounts/storage";
+import DashboardShell from "@/features/accounts/components/DashboardShell";
 import AppointmentDashboard from "@/features/scheduling/components/AppointmentDashboard";
 
 export default async function CustomerAccountPage({
@@ -23,24 +24,15 @@ export default async function CustomerAccountPage({
   const logout = logOutAction.bind(null, slug, "customer");
 
   return (
-    <main className="mx-auto max-w-3xl p-6 sm:p-10">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold">My Appointments</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {site.website.title} -- logged in as {customer.name}
-          </p>
-        </div>
-        <form action={logout}>
-          <button type="submit" className="text-sm font-medium text-gray-500 underline hover:text-gray-900">
-            Log out
-          </button>
-        </form>
-      </div>
-
-      <div className="mt-8">
-        <AppointmentDashboard slug={slug} appointments={appointments} role="customer" providers={providers} />
-      </div>
-    </main>
+    <DashboardShell
+      siteName={site.website.title}
+      slug={slug}
+      title="My Appointments"
+      subtitle={`Logged in as ${customer.name}`}
+      roleLabel="Customer"
+      logoutAction={logout}
+    >
+      <AppointmentDashboard slug={slug} appointments={appointments} role="customer" providers={providers} />
+    </DashboardShell>
   );
 }

@@ -51,20 +51,30 @@ export default function AppointmentCalendar({ appointments, selectedDate, onSele
   }
 
   return (
-    <div>
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
-        <button type="button" onClick={prevMonth} className="rounded-lg p-1.5 hover:bg-gray-100" aria-label="Previous month">
+        <button
+          type="button"
+          onClick={prevMonth}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+          aria-label="Previous month"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
         <p className="font-semibold">
           {new Date(year, month, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
         </p>
-        <button type="button" onClick={nextMonth} className="rounded-lg p-1.5 hover:bg-gray-100" aria-label="Next month">
+        <button
+          type="button"
+          onClick={nextMonth}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+          aria-label="Next month"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="mt-3 grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-500">
+      <div className="mt-4 grid grid-cols-7 gap-1 text-center text-xs font-medium text-gray-400">
         {WEEKDAY_LABELS.map((d) => (
           <div key={d}>{d}</div>
         ))}
@@ -81,19 +91,27 @@ export default function AppointmentCalendar({ appointments, selectedDate, onSele
               key={iso}
               type="button"
               onClick={() => onSelectDate(iso)}
-              className={`flex h-14 flex-col items-center gap-1 rounded-lg border p-1 text-xs ${
+              className={`flex h-12 flex-col items-center justify-center gap-0.5 rounded-lg border text-sm transition-colors sm:h-14 ${
                 inMonth ? "text-gray-900" : "text-gray-300"
-              } ${isSelected ? "border-black bg-gray-50" : "border-gray-100 hover:bg-gray-50"}`}
+              } ${
+                isSelected
+                  ? "border-black bg-gray-900 text-white"
+                  : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+              }`}
             >
               <span
-                className={`flex h-5 w-5 items-center justify-center rounded-full ${
-                  isToday ? "bg-black text-white" : ""
+                className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                  isToday && !isSelected ? "bg-black text-white" : ""
                 }`}
               >
                 {date.getDate()}
               </span>
               {count > 0 && (
-                <span className="rounded-full bg-gray-900/90 px-1.5 text-[10px] font-semibold text-white">
+                <span
+                  className={`rounded-full px-1 text-[10px] font-semibold leading-tight ${
+                    isSelected ? "text-white" : "text-gray-500"
+                  }`}
+                >
                   {count}
                 </span>
               )}

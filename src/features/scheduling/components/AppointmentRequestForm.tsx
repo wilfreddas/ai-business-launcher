@@ -1,3 +1,4 @@
+import { Send } from "lucide-react";
 import { requestAppointmentAction } from "../actions";
 
 interface Props {
@@ -8,44 +9,58 @@ interface Props {
   providers: { id: string; name: string }[];
 }
 
+const inputStyle =
+  "w-full rounded-lg border border-gray-200 p-3 text-sm outline-none transition-colors focus:border-gray-900";
+const labelStyle = "mb-1 block text-xs font-medium text-gray-500";
+
 /** Plain server-action-bound form -- no client state needed, mirrors the
  * team login form's pattern (features/accounts/components/AccountAuthForm). */
 export default function AppointmentRequestForm({ slug, providers }: Props) {
   const action = requestAppointmentAction.bind(null, slug);
 
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-gray-200 p-5">
+    <form action={action} className="space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <h2 className="font-semibold">Request an appointment</h2>
 
       {providers.length > 1 ? (
-        <select name="providerId" required defaultValue="" className="w-full rounded-lg border p-3 text-sm">
-          <option value="" disabled>
-            Who would you like to book with?
-          </option>
-          {providers.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
+        <div>
+          <label className={labelStyle}>Provider</label>
+          <select name="providerId" required defaultValue="" className={inputStyle}>
+            <option value="" disabled>
+              Who would you like to book with?
             </option>
-          ))}
-        </select>
+            {providers.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
       ) : (
         <input type="hidden" name="providerId" value={providers[0]?.id ?? ""} />
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <input type="date" name="date" required className="w-full rounded-lg border p-3 text-sm" />
-        <input type="time" name="time" required className="w-full rounded-lg border p-3 text-sm" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className={labelStyle}>Date</label>
+          <input type="date" name="date" required className={inputStyle} />
+        </div>
+        <div>
+          <label className={labelStyle}>Time</label>
+          <input type="time" name="time" required className={inputStyle} />
+        </div>
       </div>
-      <textarea
-        name="note"
-        rows={3}
-        placeholder="Anything the business should know (optional)"
-        className="w-full rounded-lg border p-3 text-sm"
-      />
+
+      <div>
+        <label className={labelStyle}>Note (optional)</label>
+        <textarea name="note" rows={3} placeholder="Anything the business should know" className={inputStyle} />
+      </div>
+
       <button
         type="submit"
-        className="w-full rounded-lg bg-black px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-800"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-black px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-800"
       >
+        <Send className="h-4 w-4" />
         Request Appointment
       </button>
       <p className="text-xs text-gray-400">
